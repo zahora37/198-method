@@ -4,47 +4,66 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function updateSession(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const isDashboard = request.nextUrl.pathname.startsWith('/dashboard')
 
+  // Let public pages load even before Supabase is configured in Vercel.
   if (!supabaseUrl || !supabaseAnonKey) {
-    if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    if (isDashboard) {
       const url = request.nextUrl.clone()
       url.pathname = '/login'
       return NextResponse.redirect(url)
     }
 
-    return NextResponse.next({ request })
+    return NextResponse.next()
   }
 
-  let supabaseResponse = NextResponse.next({ request })
+  try {
+    let supabaseResponse = NextResponse.next()
 
-  const supabase = createServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
+    const supabase = createServerClient(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) => {
+              request.cookies.set(name, value)
+            })
+
+            supabaseResponse = NextResponse.next()
+
+            cookiesToSet.forEach(({ name, value, options }) => {
+              supabaseResponse.cookies.set(name, value, options)
+            })
+          },
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
-          supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
+      }
+    )
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user && isDashboard) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
     }
-  )
 
-  const { data: { user } } = await supabase.auth.getUser()
+    return supabaseResponse
+  } catch (error) {
+    console.error('Supabase middleware error:', error)
 
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+    // Never take down the public site because auth is misconfigured.
+    if (isDashboard) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+
+    return NextResponse.next()
   }
-
-  return supabaseResponse
 }
