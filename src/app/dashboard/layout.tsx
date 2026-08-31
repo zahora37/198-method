@@ -1,16 +1,22 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { LayoutDashboard, CalendarDays, Calendar, Target, Activity, BookOpen, Calculator, LogOut } from 'lucide-react'
+import {
+  LayoutDashboard,
+  CalendarDays,
+  ListChecks,
+  Crosshair,
+  MessageSquareText,
+  Settings,
+  LogOut,
+} from 'lucide-react'
 
 const NAV = [
-  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
-  { href: '/calculator', label: '168 Calculator', icon: Calculator },
-  { href: '/dashboard/weekly-planner', label: 'Weekly Planner', icon: CalendarDays, pro: true },
-  { href: '/dashboard/daily-planner', label: 'Daily Planner', icon: Calendar, pro: true },
-  { href: '/dashboard/goals', label: 'Goals', icon: Target, pro: true },
-  { href: '/dashboard/habits', label: 'Habits', icon: Activity, pro: true },
-  { href: '/dashboard/review', label: 'Weekly Review', icon: BookOpen, pro: true },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/my-168', label: 'My 168', icon: CalendarDays },
+  { href: '/dashboard/track', label: 'Track', icon: ListChecks },
+  { href: '/dashboard/focus', label: 'Focus', icon: Crosshair },
+  { href: '/dashboard/ask-168', label: 'Ask 168', icon: MessageSquareText },
 ]
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -36,59 +42,57 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen bg-stone-50 flex">
-      {/* Sidebar */}
-      <aside className="w-60 bg-white border-r border-stone-200 flex flex-col fixed h-full">
-        <div className="h-16 px-6 flex items-center border-b border-stone-100">
-          <Link href="/" className="font-bold text-xl text-stone-900">
-            168<span className="text-indigo-600">.</span>
+      <aside className="w-64 bg-white border-r border-stone-200 flex flex-col fixed h-full">
+        <div className="h-20 px-6 flex items-center border-b border-stone-100">
+          <Link href="/dashboard" className="block">
+            <div className="font-semibold text-xl tracking-tight text-stone-900">
+              168<span className="text-indigo-600">.</span>
+            </div>
+            <div className="text-[11px] uppercase tracking-[0.18em] text-stone-400 mt-0.5">Method</div>
           </Link>
         </div>
 
-        <nav className="flex-1 p-4 space-y-0.5">
-          {NAV.map(({ href, label, icon: Icon, pro }) => {
-            const locked = pro && tier === 'free'
-            return (
-              <Link
-                key={href}
-                href={locked ? '/dashboard' : href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors group
-                  ${locked ? 'text-stone-300 cursor-default' : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'}`}
-              >
-                <Icon className="w-4 h-4 flex-shrink-0" />
-                <span className="flex-1">{label}</span>
-                {locked && (
-                  <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">Pro</span>
-                )}
-              </Link>
-            )
-          })}
+        <nav className="flex-1 px-3 py-5 space-y-1">
+          {NAV.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors"
+            >
+              <Icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.8} />
+              <span>{label}</span>
+            </Link>
+          ))}
         </nav>
 
         <div className="p-4 border-t border-stone-100 space-y-3">
-          {tier === 'free' && (
-            <Link
-              href="/api/stripe/checkout?plan=pro"
-              className="block text-center text-xs font-medium bg-indigo-600 text-white px-3 py-2 rounded-xl hover:bg-indigo-700 transition-colors"
-            >
-              Upgrade to Pro →
-            </Link>
-          )}
-          <div className="flex items-center gap-2 px-1">
+          <Link
+            href="/dashboard/settings"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors"
+          >
+            <Settings className="w-4 h-4" strokeWidth={1.8} />
+            <span>Settings</span>
+          </Link>
+
+          <div className="flex items-center gap-2 px-3 pt-2 border-t border-stone-100">
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-stone-400 truncate">{user.email}</p>
-              <p className="text-xs font-medium text-stone-600 capitalize">{tier}</p>
+              <p className="text-xs text-stone-500 truncate">{user.email}</p>
+              <p className="text-[11px] uppercase tracking-wide text-stone-400 mt-0.5">{tier}</p>
             </div>
             <form action={signOut}>
-              <button type="submit" className="text-stone-300 hover:text-stone-600 transition-colors">
-                <LogOut className="w-4 h-4" />
+              <button
+                type="submit"
+                aria-label="Sign out"
+                className="text-stone-400 hover:text-stone-700 transition-colors"
+              >
+                <LogOut className="w-4 h-4" strokeWidth={1.8} />
               </button>
             </form>
           </div>
         </div>
       </aside>
 
-      {/* Main */}
-      <main className="ml-60 flex-1 p-8">
+      <main className="ml-64 flex-1 p-8 lg:p-10">
         {children}
       </main>
     </div>
