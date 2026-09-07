@@ -61,7 +61,7 @@ export default function My168Page(){
     if(!userId){ setBlocks(current=>[...current,{id:`guest-${Date.now()}`,...form,title:form.title.trim()}]); setShowForm(false); setMessage('Added to preview. Sign in to save it to your account.'); return }
     setMessage('Saving...')
     const {startAt,endAt}=isoRange(form.day,form.start,form.end)
-    const {data,error}=await supabase.from('time_blocks').insert({user_id:userId,title:form.title.trim(),category:form.category,start_at:startAt,end_at:endAt,block_type:form.type,repeat_rule:null,notes:null}).select('id,title,category,start_at,end_at,block_type').single()
+    const {data,error}=await supabase.from('time_blocks').insert({user_id:userId,title:form.title.trim(),category:form.category,start_at:startAt,end_at:endAt,block_type:form.type,repeat_rule:'none',notes:''}).select('id,title,category,start_at,end_at,block_type').single()
     if(error){ setMessage(`Could not save: ${error.message}`); return }
     setBlocks(current=>[...current,{id:data.id,title:data.title,category:data.category||'Other',day:dayName(data.start_at),start:displayTime(data.start_at),end:displayTime(data.end_at),type:data.block_type==='Fixed'?'Fixed':'Fluid'}])
     setForm({title:'',day:'Mon',start:'8 AM',end:'9 AM',category:'Personal',type:'Fluid'}); setShowForm(false); setMessage('Saved to your 168.')
