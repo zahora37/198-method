@@ -12,13 +12,17 @@ export default function SettingsPage() {
           ['Notifications', 'Reminder timing and delivery preferences.'],
           ['Categories', 'Manage the categories used in My 168 and Track.'],
           ['Appearance', 'Theme and accent color customization will live here.'],
-          ['Subscription', 'Manage your plan and billing settings.'],
         ].map(([title, description]) => (
           <button key={title} className="w-full text-left p-5 hover:bg-stone-50 transition-colors">
             <p className="text-sm font-medium text-stone-900">{title}</p>
             <p className="text-sm text-stone-500 mt-1">{description}</p>
           </button>
         ))}
+      </section>
+
+      <section className="bg-stone-100 rounded-xl p-5">
+        <p className="text-sm font-medium text-stone-900">Early access</p>
+        <p className="text-sm text-stone-600 mt-1 leading-6">168 is currently free while we learn from early users and improve the product.</p>
       </section>
     </div>
   )
