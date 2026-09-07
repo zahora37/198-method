@@ -1,34 +1,25 @@
 import Link from 'next/link'
-import { ArrowRight, Clock, BarChart3, Target, Sparkles } from 'lucide-react'
+import { ArrowRight, Clock, BarChart3, Target, ListChecks } from 'lucide-react'
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Nav */}
-      <nav className="border-b border-stone-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+      <nav className="border-b border-stone-200 bg-white/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <span className="font-bold text-xl tracking-tight text-stone-900">
             168<span className="text-indigo-600">.</span>
           </span>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm text-stone-600 hover:text-stone-900 transition-colors">
-              Log in
-            </Link>
-            <Link
-              href="/signup"
-              className="text-sm bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800 transition-colors"
-            >
-              Get started free
-            </Link>
+            <Link href="/login" className="text-sm text-stone-600 hover:text-stone-900 transition-colors">Log in</Link>
+            <Link href="/dashboard" className="text-sm bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800 transition-colors">Explore 168</Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
       <section className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
         <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 text-xs font-medium px-3 py-1.5 rounded-full mb-8">
           <Clock className="w-3.5 h-3.5" />
-          Free to start — no credit card
+          Free early access
         </div>
 
         <h1 className="text-5xl md:text-6xl font-bold text-stone-900 leading-tight text-balance mb-6">
@@ -37,160 +28,69 @@ export default function LandingPage() {
         </h1>
 
         <p className="text-xl text-stone-500 max-w-2xl mx-auto mb-10 text-balance">
-          Most people can&apos;t account for where their time goes. The 168 Method helps
-          you see the truth — then build a week that actually reflects what matters.
+          168 helps you plan your time, track what is due, and know what deserves your attention next.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link
-            href="/calculator"
-            className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors text-base"
-          >
-            Try the 168-Hour Calculator
+          <Link href="/dashboard" className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors text-base">
+            Explore 168
             <ArrowRight className="w-4 h-4" />
           </Link>
-          <Link
-            href="/signup"
-            className="flex items-center gap-2 text-stone-600 px-6 py-3 rounded-xl font-medium hover:text-stone-900 transition-colors text-base"
-          >
-            See all features
+          <Link href="/signup" className="flex items-center gap-2 text-stone-600 px-6 py-3 rounded-xl font-medium hover:text-stone-900 transition-colors text-base">
+            Create a free account
           </Link>
         </div>
+        <p className="text-sm text-stone-400 mt-5">No payment required. Explore first and sign in when you want your information saved.</p>
       </section>
 
-      {/* Concept section */}
       <section className="bg-white border-y border-stone-200">
         <div className="max-w-5xl mx-auto px-6 py-20">
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div className="space-y-3">
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto">
-                <Clock className="w-6 h-6 text-indigo-600" />
-              </div>
-              <h3 className="font-semibold text-stone-900">See the truth</h3>
-              <p className="text-stone-500 text-sm leading-relaxed">
-                Add your time categories — sleep, work, commute, family, fitness — and instantly see where your 168 hours go.
-              </p>
+              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto"><Clock className="w-6 h-6 text-indigo-600" /></div>
+              <h3 className="font-semibold text-stone-900">Plan your time</h3>
+              <p className="text-stone-500 text-sm leading-relaxed">See where your 168 hours go and how much time remains available in your week.</p>
             </div>
             <div className="space-y-3">
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto">
-                <BarChart3 className="w-6 h-6 text-indigo-600" />
-              </div>
-              <h3 className="font-semibold text-stone-900">Find the gaps</h3>
-              <p className="text-stone-500 text-sm leading-relaxed">
-                Compare where time goes vs. where you want it to go. The gap is your opportunity.
-              </p>
+              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto"><ListChecks className="w-6 h-6 text-indigo-600" /></div>
+              <h3 className="font-semibold text-stone-900">Track what is due</h3>
+              <p className="text-stone-500 text-sm leading-relaxed">Keep responsibilities, renewals, bills, appointments, and deadlines in one place.</p>
             </div>
             <div className="space-y-3">
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto">
-                <Target className="w-6 h-6 text-indigo-600" />
-              </div>
-              <h3 className="font-semibold text-stone-900">Plan with intention</h3>
-              <p className="text-stone-500 text-sm leading-relaxed">
-                Use weekly and daily planners, habit tracking, and goal-setting to redesign your week from the ground up.
-              </p>
+              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto"><Target className="w-6 h-6 text-indigo-600" /></div>
+              <h3 className="font-semibold text-stone-900">Know what to focus on</h3>
+              <p className="text-stone-500 text-sm leading-relaxed">Bring due dates, priority, and available time together so you can see what needs attention.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
       <section className="max-w-5xl mx-auto px-6 py-24">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl font-bold text-stone-900 mb-3">Simple, honest pricing</h2>
-          <p className="text-stone-500">Start free. Upgrade when you&apos;re ready.</p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Free */}
-          <div className="bg-white border border-stone-200 rounded-2xl p-7 space-y-5">
-            <div>
-              <p className="text-sm font-medium text-stone-500 mb-1">Free</p>
-              <p className="text-3xl font-bold text-stone-900">$0</p>
-            </div>
-            <ul className="space-y-2.5">
-              {['168-Hour Calculator'].map(f => (
-                <li key={f} className="flex items-center gap-2 text-sm text-stone-600">
-                  <span className="w-4 h-4 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 text-xs">✓</span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/signup"
-              className="block text-center text-sm font-medium border border-stone-300 text-stone-700 py-2.5 rounded-xl hover:bg-stone-50 transition-colors"
-            >
-              Get started free
-            </Link>
+        <div className="bg-white border border-stone-200 rounded-2xl p-8 md:p-10 grid md:grid-cols-[1fr_auto] gap-8 items-center">
+          <div>
+            <p className="text-xs uppercase tracking-[0.16em] text-stone-400">Early access</p>
+            <h2 className="text-3xl font-bold text-stone-900 mt-2">Help shape 168 while it grows.</h2>
+            <p className="text-stone-500 mt-3 max-w-2xl leading-7">We are focused on learning from real users before introducing paid plans. Use the product, test the workflow, and tell us what would make it more useful.</p>
           </div>
-
-          {/* Pro */}
-          <div className="bg-indigo-600 rounded-2xl p-7 space-y-5 relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-xs font-semibold px-3 py-1 rounded-full">
-              Most popular
-            </div>
-            <div>
-              <p className="text-sm font-medium text-indigo-200 mb-1">Pro</p>
-              <p className="text-3xl font-bold text-white">$9<span className="text-lg font-normal text-indigo-300">/mo</span></p>
-            </div>
-            <ul className="space-y-2.5">
-              {['168-Hour Calculator', 'Weekly Planner', 'Daily Planner', 'Goals Tracker', 'Habit Tracker', 'Weekly Review'].map(f => (
-                <li key={f} className="flex items-center gap-2 text-sm text-indigo-100">
-                  <span className="w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center text-indigo-100 text-xs">✓</span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/signup?plan=pro"
-              className="block text-center text-sm font-medium bg-white text-indigo-700 py-2.5 rounded-xl hover:bg-indigo-50 transition-colors"
-            >
-              Start Pro
-            </Link>
-          </div>
-
-          {/* Premium */}
-          <div className="bg-white border border-stone-200 rounded-2xl p-7 space-y-5">
-            <div>
-              <p className="text-sm font-medium text-stone-500 mb-1">Premium</p>
-              <p className="text-3xl font-bold text-stone-900">$19<span className="text-lg font-normal text-stone-400">/mo</span></p>
-            </div>
-            <ul className="space-y-2.5">
-              {['Everything in Pro', 'AI weekly planning', 'AI goal-setting prompts', 'AI reflection prompts'].map(f => (
-                <li key={f} className="flex items-center gap-2 text-sm text-stone-600">
-                  <span className="w-4 h-4 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 text-xs">✓</span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/signup?plan=premium"
-              className="block text-center text-sm font-medium bg-stone-900 text-white py-2.5 rounded-xl hover:bg-stone-800 transition-colors"
-            >
-              Start Premium
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="bg-stone-900 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-20 text-center space-y-6">
-          <Sparkles className="w-8 h-8 text-indigo-400 mx-auto" />
-          <h2 className="text-3xl font-bold">Start with your 168 hours.</h2>
-          <p className="text-stone-400 max-w-lg mx-auto">
-            No complicated setup. Open the calculator, add your categories, and see where your week really goes — right now.
-          </p>
-          <Link
-            href="/calculator"
-            className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors"
-          >
-            Try it free — no sign-up needed
+          <Link href="/dashboard" className="inline-flex items-center justify-center gap-2 bg-stone-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-stone-800 transition-colors whitespace-nowrap">
+            Open the app
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>
 
-      {/* Footer */}
+      <section className="bg-stone-900 text-white">
+        <div className="max-w-5xl mx-auto px-6 py-20 text-center space-y-6">
+          <BarChart3 className="w-8 h-8 text-indigo-400 mx-auto" />
+          <h2 className="text-3xl font-bold">Start with your 168 hours.</h2>
+          <p className="text-stone-400 max-w-lg mx-auto">Explore the system without signing in. When you are ready to save your information, create a free account.</p>
+          <Link href="/dashboard" className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
+            Explore free
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
+
       <footer className="border-t border-stone-200 bg-white">
         <div className="max-w-5xl mx-auto px-6 py-8 flex items-center justify-between text-sm text-stone-400">
           <span className="font-bold text-stone-900">168<span className="text-indigo-600">.</span></span>
