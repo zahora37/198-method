@@ -7,6 +7,9 @@ type BlockType = 'Fixed' | 'Fluid'
 type DayChoice = 'All Week' | 'Work Days' | 'Weekend' | 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun'
 type TimeBlock = { id: string; title: string; day: string; start: string; end: string; category: string; type: BlockType }
 type Palette = Record<string, string>
+type InsertRow = { user_id: string; title: string; category: string; start_at: string; end_at: string; repeat_rule: string; notes: string }
+type SavedRow = { id: string; title: string; category: string | null; start_at: string; end_at: string; block_type: string }
+type SaveError = { message: string }
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const DAY_CHOICES: DayChoice[] = ['All Week', 'Work Days', 'Weekend', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -57,14 +60,14 @@ export default function My168Page(){
     setLoading(false)
   }
 
-  async function insertRows(rows:any[]){
+  async function insertRows(rows:InsertRow[]):Promise<{data:SavedRow[]|null;error:SaveError|null}>{
     const candidates = form.type==='Fluid' ? ['Flexible','flexible','Fluid','fluid'] : ['Fixed','fixed']
-    let lastError:any=null
+    let lastError: SaveError | null = null
     for(const dbType of candidates){
-      const {data,error}=await supabase.from('time_blocks').insert(rows.map(row=>({...row,block_type:dbType}))).select('id,title,category,start_at,end_at,block_type')
-      if(!error)return {data,error:null}
-      lastError=error
-      if(!String(error.message).includes('time_blocks_block_type_check')) break
+      const result=await supabase.from('time_blocks').insert(rows.map(row=>({...row,block_type:dbType}))).select('id,title,category,start_at,end_at,block_type')
+      if(!result.error)return {data:(result.data||[]) as SavedRow[],error:null}
+      lastError={message:result.error.message}
+      if(!result.error.message.includes('time_blocks_block_type_check'))break
     }
     return {data:null,error:lastError}
   }
@@ -79,11 +82,11 @@ export default function My168Page(){
     }
 
     setMessage('Saving...')
-    const rows=selectedDays.map(day=>{ const {startAt,endAt}=isoRange(day,form.start,form.end); return {user_id:userId,title:form.title.trim(),category:form.category,start_at:startAt,end_at:endAt,repeat_rule:'none',notes:''} })
+    const rows:InsertRow[]=selectedDays.map(day=>{ const {startAt,endAt}=isoRange(day,form.start,form.end); return {user_id:userId,title:form.title.trim(),category:form.category,start_at:startAt,end_at:endAt,repeat_rule:'none',notes:''} })
     const {data,error}=await insertRows(rows)
     if(error){ setMessage(`Could not save: ${error.message}`); return }
 
-    const saved=(data||[]).map((row:any)=>({id:row.id,title:row.title,category:row.category||'Other',day:dayName(row.start_at),start:displayTime(row.start_at),end:displayTime(row.end_at),type:uiTypeFromDb(row.block_type)}))
+    const saved=(data||[]).map(row=>({id:row.id,title:row.title,category:row.category||'Other',day:dayName(row.start_at),start:displayTime(row.start_at),end:displayTime(row.end_at),type:uiTypeFromDb(row.block_type)}))
     setBlocks(current=>[...current,...saved])
     setForm({title:'',day:'Mon',start:'8 AM',end:'9 AM',category:'Personal',type:'Fluid'})
     setShowForm(false)
