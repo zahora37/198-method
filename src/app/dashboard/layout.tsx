@@ -23,16 +23,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tier')
-    .eq('id', user.id)
-    .single()
-
-  const tier = profile?.tier ?? 'free'
-
   async function signOut() {
     'use server'
     const supabase = await createClient()
@@ -74,20 +64,30 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <span>Settings</span>
           </Link>
 
-          <div className="flex items-center gap-2 px-3 pt-2 border-t border-stone-100">
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-stone-500 truncate">{user.email}</p>
-              <p className="text-[11px] uppercase tracking-wide text-stone-400 mt-0.5">{tier}</p>
-            </div>
-            <form action={signOut}>
-              <button
-                type="submit"
-                aria-label="Sign out"
-                className="text-stone-400 hover:text-stone-700 transition-colors"
-              >
-                <LogOut className="w-4 h-4" strokeWidth={1.8} />
-              </button>
-            </form>
+          <div className="px-3 pt-2 border-t border-stone-100">
+            {user ? (
+              <div className="flex items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-stone-500 truncate">{user.email}</p>
+                  <p className="text-[11px] uppercase tracking-wide text-stone-400 mt-0.5">Early access</p>
+                </div>
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    aria-label="Sign out"
+                    className="text-stone-400 hover:text-stone-700 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" strokeWidth={1.8} />
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-stone-700">Guest preview</p>
+                <p className="text-[11px] leading-5 text-stone-400">Explore 168 without an account. Sign in later when you want your information saved.</p>
+                <Link href="/login" className="inline-block text-xs font-medium text-indigo-600 hover:text-indigo-700">Sign in to save</Link>
+              </div>
+            )}
           </div>
         </div>
       </aside>
