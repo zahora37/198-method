@@ -6,6 +6,8 @@
   :root {
     --background: 250 250 249;
     --foreground: 28 25 23;
+    --accent: #8b7cf6;
+    --accent-soft: #f1efff;
   }
 
   body {
@@ -21,5 +23,21 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .text-accent {
+    color: var(--accent);
+  }
+
+  .bg-accent {
+    background-color: var(--accent);
+  }
+
+  .bg-accent-soft {
+    background-color: var(--accent-soft);
+  }
+
+  .border-accent {
+    border-color: var(--accent);
   }
 }
