@@ -1,102 +1,69 @@
 import Link from 'next/link'
-import { ArrowRight, Clock, BarChart3, Target, ListChecks } from 'lucide-react'
+import { ArrowRight, Clock, Target, ListChecks, Layers3 } from 'lucide-react'
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-stone-50">
       <nav className="border-b border-stone-200 bg-white/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span className="font-bold text-xl tracking-tight text-stone-900">
-            168<span className="text-indigo-600">.</span>
-          </span>
+          <span className="font-bold text-xl tracking-tight text-stone-900">168<span className="text-indigo-500">.</span></span>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm text-stone-600 hover:text-stone-900 transition-colors">Log in</Link>
-            <Link href="/dashboard" className="text-sm bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800 transition-colors">Explore 168</Link>
+            <Link href="/login" className="text-sm text-stone-600 hover:text-stone-900">Log in</Link>
+            <Link href="/signup" className="text-sm bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800">Create your 168</Link>
           </div>
         </div>
       </nav>
 
       <section className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
-        <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 text-xs font-medium px-3 py-1.5 rounded-full mb-8">
-          <Clock className="w-3.5 h-3.5" />
-          Free early access
-        </div>
-
-        <h1 className="text-5xl md:text-6xl font-bold text-stone-900 leading-tight text-balance mb-6">
-          You get 168 hours<br />
-          <span className="text-indigo-600">every single week.</span>
-        </h1>
-
-        <p className="text-xl text-stone-500 max-w-2xl mx-auto mb-10 text-balance">
-          168 helps you plan your time, track what is due, and know what deserves your attention next.
-        </p>
-
+        <div className="inline-flex items-center gap-2 bg-violet-50 text-violet-700 text-xs font-medium px-3 py-1.5 rounded-full mb-8"><Clock className="w-3.5 h-3.5" />Free early access</div>
+        <h1 className="text-5xl md:text-6xl font-bold text-stone-900 leading-tight text-balance mb-6">You have 168 hours<br /><span className="text-indigo-500">every week.</span></h1>
+        <p className="text-xl text-stone-600 max-w-2xl mx-auto mb-4 text-balance">The goal is not to create more time. It is to understand the time you have and use it with intention.</p>
+        <p className="text-base text-stone-500 max-w-2xl mx-auto mb-10 leading-7">168 brings your time, responsibilities, and priorities into one calm system so you can see what is already committed, what needs to be remembered, and what deserves your attention next.</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link href="/dashboard" className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors text-base">
-            Explore 168
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link href="/signup" className="flex items-center gap-2 text-stone-600 px-6 py-3 rounded-xl font-medium hover:text-stone-900 transition-colors text-base">
-            Create a free account
-          </Link>
+          <Link href="/signup" className="flex items-center gap-2 bg-stone-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-stone-800">Create your 168<ArrowRight className="w-4 h-4" /></Link>
+          <Link href="/dashboard" className="flex items-center gap-2 border border-stone-300 bg-white text-stone-700 px-6 py-3 rounded-xl font-medium hover:bg-stone-100">Explore first</Link>
         </div>
-        <p className="text-sm text-stone-400 mt-5">No payment required. Explore first and sign in when you want your information saved.</p>
+        <p className="text-sm text-stone-400 mt-5">Free during early access. No payment required.</p>
       </section>
 
       <section className="bg-white border-y border-stone-200">
         <div className="max-w-5xl mx-auto px-6 py-20">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
-            <div className="space-y-3">
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto"><Clock className="w-6 h-6 text-indigo-600" /></div>
-              <h3 className="font-semibold text-stone-900">Plan your time</h3>
-              <p className="text-stone-500 text-sm leading-relaxed">See where your 168 hours go and how much time remains available in your week.</p>
-            </div>
-            <div className="space-y-3">
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto"><ListChecks className="w-6 h-6 text-indigo-600" /></div>
-              <h3 className="font-semibold text-stone-900">Track what is due</h3>
-              <p className="text-stone-500 text-sm leading-relaxed">Keep responsibilities, renewals, bills, appointments, and deadlines in one place.</p>
-            </div>
-            <div className="space-y-3">
-              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto"><Target className="w-6 h-6 text-indigo-600" /></div>
-              <h3 className="font-semibold text-stone-900">Know what to focus on</h3>
-              <p className="text-stone-500 text-sm leading-relaxed">Bring due dates, priority, and available time together so you can see what needs attention.</p>
-            </div>
+          <div className="max-w-2xl mb-12">
+            <p className="text-xs uppercase tracking-[0.18em] text-stone-400 font-medium">Why 168 exists</p>
+            <h2 className="text-3xl font-semibold text-stone-900 mt-2">Life should not live in six different places.</h2>
+            <p className="text-stone-500 mt-4 leading-7">Calendars hold appointments. Reminder apps hold due dates. Notes hold things you cannot forget. Task lists hold work. Your head holds everything else. 168 is designed to connect those pieces so planning your week reflects your real life.</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              [Clock, 'Plan your time', 'Start with the commitments that already own part of your week. 168 shows what remains from your 168 hours.'],
+              [ListChecks, 'Track what is due', 'Keep bills, appointments, renewals, deadlines, maintenance, and responsibilities in one dependable place.'],
+              [Target, 'Know what to focus on', 'Bring urgency, importance, and available time together so the next step is easier to see.'],
+            ].map(([Icon, title, copy], index) => {
+              const IconComponent = Icon as typeof Clock
+              const tones = ['bg-blue-50 text-blue-600', 'bg-rose-50 text-rose-600', 'bg-emerald-50 text-emerald-600']
+              return <div key={title as string} className="border border-stone-200 rounded-2xl p-6"><div className={`w-11 h-11 rounded-xl flex items-center justify-center ${tones[index]}`}><IconComponent className="w-5 h-5" /></div><h3 className="font-semibold text-stone-900 mt-5">{title as string}</h3><p className="text-stone-500 text-sm leading-6 mt-2">{copy as string}</p></div>
+            })}
           </div>
         </div>
       </section>
 
       <section className="max-w-5xl mx-auto px-6 py-24">
-        <div className="bg-white border border-stone-200 rounded-2xl p-8 md:p-10 grid md:grid-cols-[1fr_auto] gap-8 items-center">
-          <div>
-            <p className="text-xs uppercase tracking-[0.16em] text-stone-400">Early access</p>
-            <h2 className="text-3xl font-bold text-stone-900 mt-2">Help shape 168 while it grows.</h2>
-            <p className="text-stone-500 mt-3 max-w-2xl leading-7">We are focused on learning from real users before introducing paid plans. Use the product, test the workflow, and tell us what would make it more useful.</p>
+        <div className="grid md:grid-cols-[0.8fr_1.2fr] gap-12 items-start">
+          <div><Layers3 className="w-8 h-8 text-indigo-500" /><h2 className="text-3xl font-semibold text-stone-900 mt-5">Built to explain itself.</h2><p className="text-stone-500 mt-4 leading-7">168 guides you as you use it. Each area tells you what belongs there, why it matters, and what happens next without turning the experience into a long tutorial.</p></div>
+          <div className="space-y-3">
+            {[
+              ['My 168', 'Add the time that is already committed so you can see what is truly available.'],
+              ['Track', 'Add anything you need to remember, especially responsibilities with a due date or repeat schedule.'],
+              ['Focus', 'See the few things that need attention based on timing, importance, and your week.'],
+              ['Ask 168', 'Ask practical questions about your time and responsibilities once your system has context.'],
+            ].map(([title, copy], index) => <div key={title} className="bg-white border border-stone-200 rounded-xl p-5 flex gap-4"><span className="w-7 h-7 rounded-full bg-violet-50 text-violet-600 flex items-center justify-center text-xs font-semibold shrink-0">{index + 1}</span><div><p className="font-medium text-stone-900">{title}</p><p className="text-sm text-stone-500 mt-1 leading-6">{copy}</p></div></div>)}
           </div>
-          <Link href="/dashboard" className="inline-flex items-center justify-center gap-2 bg-stone-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-stone-800 transition-colors whitespace-nowrap">
-            Open the app
-            <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
       </section>
 
-      <section className="bg-stone-900 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-20 text-center space-y-6">
-          <BarChart3 className="w-8 h-8 text-indigo-400 mx-auto" />
-          <h2 className="text-3xl font-bold">Start with your 168 hours.</h2>
-          <p className="text-stone-400 max-w-lg mx-auto">Explore the system without signing in. When you are ready to save your information, create a free account.</p>
-          <Link href="/dashboard" className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
-            Explore free
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </section>
+      <section className="bg-stone-900 text-white"><div className="max-w-5xl mx-auto px-6 py-20 text-center"><h2 className="text-3xl font-semibold">Start with the life you already have.</h2><p className="text-stone-400 max-w-xl mx-auto mt-4 leading-7">Build your 168 around your real commitments, responsibilities, and priorities. You can explore first or create a free account to keep your information.</p><Link href="/signup" className="inline-flex items-center gap-2 bg-white text-stone-900 px-6 py-3 rounded-xl font-medium hover:bg-stone-100 mt-7">Create your 168<ArrowRight className="w-4 h-4" /></Link></div></section>
 
-      <footer className="border-t border-stone-200 bg-white">
-        <div className="max-w-5xl mx-auto px-6 py-8 flex items-center justify-between text-sm text-stone-400">
-          <span className="font-bold text-stone-900">168<span className="text-indigo-600">.</span></span>
-          <span>© {new Date().getFullYear()} 168 Method</span>
-        </div>
-      </footer>
+      <footer className="border-t border-stone-200 bg-white"><div className="max-w-5xl mx-auto px-6 py-8 flex items-center justify-between text-sm text-stone-400"><span className="font-bold text-stone-900">168<span className="text-indigo-500">.</span></span><span>© {new Date().getFullYear()} 168 Method</span></div></footer>
     </div>
   )
 }
