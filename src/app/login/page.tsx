@@ -39,7 +39,7 @@ export default function LoginPage() {
             168<span className="text-indigo-600">.</span>
           </Link>
           <h1 className="mt-6 text-2xl font-bold text-stone-900">Welcome back</h1>
-          <p className="mt-2 text-sm text-stone-500">Sign in with your email — we&apos;ll send a magic link.</p>
+          <p className="mt-2 text-sm text-stone-500">Sign in with your email to save your information, or explore first.</p>
         </div>
 
         {sent ? (
@@ -76,10 +76,22 @@ export default function LoginPage() {
           </form>
         )}
 
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-stone-200" /></div>
+          <div className="relative flex justify-center"><span className="bg-stone-50 px-3 text-xs uppercase tracking-wide text-stone-400">or</span></div>
+        </div>
+
+        <Link
+          href="/dashboard"
+          className="block w-full text-center border border-stone-300 bg-white text-stone-800 py-3 rounded-xl font-medium hover:bg-stone-100 transition-colors text-sm"
+        >
+          Explore 168 without signing in
+        </Link>
+
         <p className="text-center text-sm text-stone-500">
           Don&apos;t have an account?{' '}
           <Link href="/signup" className="text-indigo-600 hover:underline font-medium">
-            Sign up
+            Sign up free
           </Link>
         </p>
       </div>
