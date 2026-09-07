@@ -2,14 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Suspense } from 'react'
 
-function SignupForm() {
-  const searchParams = useSearchParams()
-  const plan = searchParams.get('plan')
-
+export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -24,7 +19,7 @@ function SignupForm() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?plan=${plan ?? 'free'}`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     })
 
@@ -43,10 +38,8 @@ function SignupForm() {
           <Link href="/" className="font-bold text-2xl text-stone-900">
             168<span className="text-indigo-600">.</span>
           </Link>
-          <h1 className="mt-6 text-2xl font-bold text-stone-900">
-            {plan === 'pro' ? 'Start Pro' : plan === 'premium' ? 'Start Premium' : 'Get started free'}
-          </h1>
-          <p className="mt-2 text-sm text-stone-500">Enter your email to create your account.</p>
+          <h1 className="mt-6 text-2xl font-bold text-stone-900">Join 168 early access</h1>
+          <p className="mt-2 text-sm text-stone-500">Create a free account so your information can be saved as we continue building.</p>
         </div>
 
         {sent ? (
@@ -57,9 +50,7 @@ function SignupForm() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-stone-700 mb-1.5">
-                Email address
-              </label>
+              <label htmlFor="email" className="block text-sm font-medium text-stone-700 mb-1.5">Email address</label>
               <input
                 id="email"
                 type="email"
@@ -83,21 +74,15 @@ function SignupForm() {
           </form>
         )}
 
+        <Link href="/dashboard" className="block text-center text-sm font-medium text-stone-600 hover:text-stone-900">
+          Explore first without signing in
+        </Link>
+
         <p className="text-center text-sm text-stone-500">
           Already have an account?{' '}
-          <Link href="/login" className="text-indigo-600 hover:underline font-medium">
-            Log in
-          </Link>
+          <Link href="/login" className="text-indigo-600 hover:underline font-medium">Log in</Link>
         </p>
       </div>
     </div>
-  )
-}
-
-export default function SignupPage() {
-  return (
-    <Suspense>
-      <SignupForm />
-    </Suspense>
   )
 }
