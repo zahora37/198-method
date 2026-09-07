@@ -4,16 +4,10 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function updateSession(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const isDashboard = request.nextUrl.pathname.startsWith('/dashboard')
 
-  // Let public pages load even before Supabase is configured in Vercel.
+  // Guest preview is allowed across the app. Supabase is used to refresh
+  // authenticated sessions when available, but it should never block access.
   if (!supabaseUrl || !supabaseAnonKey) {
-    if (isDashboard) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
-    }
-
     return NextResponse.next()
   }
 
@@ -43,27 +37,10 @@ export async function updateSession(request: NextRequest) {
       }
     )
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user && isDashboard) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
-    }
-
+    await supabase.auth.getUser()
     return supabaseResponse
   } catch (error) {
     console.error('Supabase middleware error:', error)
-
-    // Never take down the public site because auth is misconfigured.
-    if (isDashboard) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/login'
-      return NextResponse.redirect(url)
-    }
-
     return NextResponse.next()
   }
 }
