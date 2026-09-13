@@ -1,6 +1,6 @@
 -- 168 Method product core
 -- Converts the prototype tables into a connected product model.
--- Designed to be additive so existing saved My 168 data is preserved.
+-- Additive only: existing Track and My 168 data is preserved.
 
 create extension if not exists "uuid-ossp";
 
@@ -20,27 +20,15 @@ create table if not exists public.user_categories (
 alter table public.user_categories enable row level security;
 
 drop policy if exists "Users can view own categories" on public.user_categories;
-create policy "Users can view own categories"
-  on public.user_categories for select
-  using (auth.uid() = user_id);
-
+create policy "Users can view own categories" on public.user_categories for select using (auth.uid() = user_id);
 drop policy if exists "Users can insert own categories" on public.user_categories;
-create policy "Users can insert own categories"
-  on public.user_categories for insert
-  with check (auth.uid() = user_id);
-
+create policy "Users can insert own categories" on public.user_categories for insert with check (auth.uid() = user_id);
 drop policy if exists "Users can update own categories" on public.user_categories;
-create policy "Users can update own categories"
-  on public.user_categories for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
+create policy "Users can update own categories" on public.user_categories for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 drop policy if exists "Users can delete own categories" on public.user_categories;
-create policy "Users can delete own categories"
-  on public.user_categories for delete
-  using (auth.uid() = user_id);
+create policy "Users can delete own categories" on public.user_categories for delete using (auth.uid() = user_id);
 
--- Shared updated_at trigger.
+-- Shared updated_at trigger helper.
 create or replace function public.set_updated_at()
 returns trigger as $$
 begin
@@ -60,28 +48,26 @@ alter table public.time_blocks
   add column if not exists recurrence_group_id uuid,
   add column if not exists category_id uuid references public.user_categories(id) on delete set null;
 
--- Keep a text category for backward compatibility while category_id becomes the shared source.
 create index if not exists time_blocks_user_start_idx on public.time_blocks(user_id, start_at);
 create index if not exists time_blocks_track_item_idx on public.time_blocks(track_item_id);
 create index if not exists time_blocks_recurrence_group_idx on public.time_blocks(recurrence_group_id);
 
--- Extend Track into the source of truth for responsibilities.
--- Existing columns are preserved. These fields support Kanban, Focus, scheduling, and completion history.
+-- Extend existing Track table. Existing columns such as due_date, repeat_rule,
+-- reminder, time_needed_minutes, priority, amount, auto_pay, notes, status,
+-- last_completed_at, created_at, and updated_at remain the source of truth.
 alter table public.track_items
   add column if not exists category_id uuid references public.user_categories(id) on delete set null,
   add column if not exists workflow_status text not null default 'inbox',
-  add column if not exists estimated_minutes integer,
   add column if not exists completed_at timestamptz,
   add column if not exists archived_at timestamptz,
-  add column if not exists recurrence_group_id uuid,
-  add column if not exists updated_at timestamptz not null default now();
+  add column if not exists recurrence_group_id uuid;
 
--- Normalize workflow values without forcing old prototype fields to disappear yet.
+-- Separate workflow location from outcome status.
+-- status can continue to mean Upcoming / Overdue / Completed.
+-- workflow_status powers Inbox / Planned / In Progress / Completed / Archived.
 do $$
 begin
-  if not exists (
-    select 1 from pg_constraint where conname = 'track_items_workflow_status_check'
-  ) then
+  if not exists (select 1 from pg_constraint where conname = 'track_items_workflow_status_check') then
     alter table public.track_items
       add constraint track_items_workflow_status_check
       check (workflow_status in ('inbox', 'planned', 'in_progress', 'completed', 'archived'));
@@ -91,13 +77,13 @@ end $$;
 create index if not exists track_items_user_workflow_idx on public.track_items(user_id, workflow_status);
 create index if not exists track_items_recurrence_group_idx on public.track_items(recurrence_group_id);
 
+-- Reuse the existing updated_at column.
 drop trigger if exists set_track_items_updated_at on public.track_items;
 create trigger set_track_items_updated_at
   before update on public.track_items
   for each row execute function public.set_updated_at();
 
 -- Link a calendar block back to the Track responsibility that created it.
--- We add the foreign key only when track_items.id is UUID, keeping the migration safe for older prototypes.
 do $$
 declare
   track_id_type text;
@@ -115,7 +101,7 @@ begin
   end if;
 end $$;
 
--- Completion history lets recurrence and analytics work without losing past completions.
+-- Completion history preserves past completions while recurring Track items continue forward.
 create table if not exists public.track_item_completions (
   id uuid primary key default uuid_generate_v4(),
   user_id uuid references auth.users(id) on delete cascade not null,
@@ -128,30 +114,18 @@ create table if not exists public.track_item_completions (
 alter table public.track_item_completions enable row level security;
 
 drop policy if exists "Users can view own completion history" on public.track_item_completions;
-create policy "Users can view own completion history"
-  on public.track_item_completions for select
-  using (auth.uid() = user_id);
-
+create policy "Users can view own completion history" on public.track_item_completions for select using (auth.uid() = user_id);
 drop policy if exists "Users can insert own completion history" on public.track_item_completions;
-create policy "Users can insert own completion history"
-  on public.track_item_completions for insert
-  with check (auth.uid() = user_id);
-
+create policy "Users can insert own completion history" on public.track_item_completions for insert with check (auth.uid() = user_id);
 drop policy if exists "Users can update own completion history" on public.track_item_completions;
-create policy "Users can update own completion history"
-  on public.track_item_completions for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
+create policy "Users can update own completion history" on public.track_item_completions for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 drop policy if exists "Users can delete own completion history" on public.track_item_completions;
-create policy "Users can delete own completion history"
-  on public.track_item_completions for delete
-  using (auth.uid() = user_id);
+create policy "Users can delete own completion history" on public.track_item_completions for delete using (auth.uid() = user_id);
 
 create index if not exists track_item_completions_user_idx on public.track_item_completions(user_id, completed_at desc);
 create index if not exists track_item_completions_item_idx on public.track_item_completions(track_item_id);
 
--- Seed default categories only for users who do not already have shared categories.
+-- Seed one shared pastel category palette for each account.
 insert into public.user_categories (user_id, name, color, sort_order)
 select u.id, v.name, v.color, v.sort_order
 from auth.users u
@@ -166,7 +140,8 @@ cross join (values
   ('Social', '#ffedd5', 80),
   ('Finance', '#f5f0e6', 90),
   ('Vehicle', '#e0f2fe', 100),
-  ('Other', '#e7e5e4', 110)
+  ('Subscription', '#fae8ff', 110),
+  ('Other', '#e7e5e4', 120)
 ) as v(name, color, sort_order)
 where not exists (
   select 1 from public.user_categories c where c.user_id = u.id
