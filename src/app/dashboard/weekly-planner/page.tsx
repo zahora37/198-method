@@ -1,19 +1,95 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { getWeekStartISO } from '@/lib/week'
+import type { Priority } from '@/types'
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
-type Priority = { id: number; text: string; done: boolean }
+const DEFAULT_PRIORITIES: Priority[] = [
+  { id: '1', text: '', done: false },
+  { id: '2', text: '', done: false },
+  { id: '3', text: '', done: false },
+]
 
 export default function WeeklyPlannerPage() {
-  const [priorities, setPriorities] = useState<Priority[]>([
-    { id: 1, text: '', done: false },
-    { id: 2, text: '', done: false },
-    { id: 3, text: '', done: false },
-  ])
+  const supabase = useMemo(() => createClient(), [])
+  const weekOf = useMemo(() => getWeekStartISO(), [])
+
+  const [planId, setPlanId] = useState<string | null>(null)
+  const [priorities, setPriorities] = useState<Priority[]>(DEFAULT_PRIORITIES)
   const [focus, setFocus] = useState('')
   const [dayPlans, setDayPlans] = useState<Record<string, string>>({})
+  const [loaded, setLoaded] = useState(false)
+  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from('weekly_plans')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('week_of', weekOf)
+        .maybeSingle()
+
+      if (cancelled) return
+
+      if (data) {
+        setPlanId(data.id)
+        setPriorities(
+          Array.isArray(data.top_priorities) && data.top_priorities.length
+            ? data.top_priorities
+            : DEFAULT_PRIORITIES
+        )
+        setFocus(data.focus ?? '')
+        setDayPlans(data.day_plans ?? {})
+      }
+      setLoaded(true)
+    }
+
+    load()
+    return () => { cancelled = true }
+  }, [supabase, weekOf])
+
+  useEffect(() => {
+    if (!loaded) return
+
+    if (saveTimeout.current) clearTimeout(saveTimeout.current)
+    saveTimeout.current = setTimeout(async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data, error } = await supabase
+        .from('weekly_plans')
+        .upsert(
+          {
+            id: planId ?? undefined,
+            user_id: user.id,
+            week_of: weekOf,
+            top_priorities: priorities,
+            focus,
+            day_plans: dayPlans,
+          },
+          { onConflict: 'user_id,week_of' }
+        )
+        .select('id')
+        .single()
+
+      if (!error && data && !planId) setPlanId(data.id)
+    }, 600)
+
+    return () => {
+      if (saveTimeout.current) clearTimeout(saveTimeout.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [priorities, focus, dayPlans, loaded])
+
   const completed = useMemo(() => priorities.filter(p => p.done && p.text.trim()).length, [priorities])
 
   return (

@@ -1,17 +1,101 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { getWeekStartISO } from '@/lib/week'
 
-const PROMPTS = [
+const PROMPTS: [string, string][] = [
   ['Wins', 'What went well this week?'],
   ['Time leaks', 'Where did time disappear without giving you much back?'],
   ['Energy', 'What gave you energy? What drained it?'],
   ['Next week', 'What will you protect or change next week?'],
 ]
 
+const FIELD_BY_TITLE: Record<string, 'what_worked' | 'time_reflection' | 'what_didnt' | 'next_change'> = {
+  'Wins': 'what_worked',
+  'Time leaks': 'time_reflection',
+  'Energy': 'what_didnt',
+  'Next week': 'next_change',
+}
+
 export default function ReviewPage() {
+  const supabase = useMemo(() => createClient(), [])
+  const weekOf = useMemo(() => getWeekStartISO(), [])
+
+  const [reviewId, setReviewId] = useState<string | null>(null)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [score, setScore] = useState(7)
+  const [loaded, setLoaded] = useState(false)
+  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from('weekly_reviews')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('week_of', weekOf)
+        .maybeSingle()
+
+      if (cancelled) return
+
+      if (data) {
+        setReviewId(data.id)
+        const nextAnswers: Record<string, string> = {}
+        for (const [title] of PROMPTS) {
+          nextAnswers[title] = data[FIELD_BY_TITLE[title]] ?? ''
+        }
+        setAnswers(nextAnswers)
+        setScore(data.alignment_score ?? 7)
+      }
+      setLoaded(true)
+    }
+
+    load()
+    return () => { cancelled = true }
+  }, [supabase, weekOf])
+
+  useEffect(() => {
+    if (!loaded) return
+
+    if (saveTimeout.current) clearTimeout(saveTimeout.current)
+    saveTimeout.current = setTimeout(async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const fields: Record<string, string> = {}
+      for (const [title] of PROMPTS) {
+        fields[FIELD_BY_TITLE[title]] = answers[title] ?? ''
+      }
+
+      const { data, error } = await supabase
+        .from('weekly_reviews')
+        .upsert(
+          {
+            id: reviewId ?? undefined,
+            user_id: user.id,
+            week_of: weekOf,
+            alignment_score: score,
+            ...fields,
+          },
+          { onConflict: 'user_id,week_of' }
+        )
+        .select('id')
+        .single()
+
+      if (!error && data && !reviewId) setReviewId(data.id)
+    }, 600)
+
+    return () => {
+      if (saveTimeout.current) clearTimeout(saveTimeout.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, score, loaded])
 
   return (
     <div className="space-y-7 max-w-5xl">

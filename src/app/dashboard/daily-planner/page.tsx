@@ -1,13 +1,83 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { todayISO } from '@/lib/week'
 
 const BLOCKS = ['Morning', 'Midday', 'Afternoon', 'Evening']
 
 export default function DailyPlannerPage() {
+  const supabase = useMemo(() => createClient(), [])
+  const date = useMemo(() => todayISO(), [])
+
+  const [planId, setPlanId] = useState<string | null>(null)
   const [topThree, setTopThree] = useState(['', '', ''])
   const [blocks, setBlocks] = useState<Record<string, string>>({})
   const [notes, setNotes] = useState('')
+  const [loaded, setLoaded] = useState(false)
+  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from('daily_plans')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('date', date)
+        .maybeSingle()
+
+      if (cancelled) return
+
+      if (data) {
+        setPlanId(data.id)
+        setTopThree(Array.isArray(data.top_three) && data.top_three.length === 3 ? data.top_three : ['', '', ''])
+        setBlocks(data.blocks ?? {})
+        setNotes(data.notes ?? '')
+      }
+      setLoaded(true)
+    }
+
+    load()
+    return () => { cancelled = true }
+  }, [supabase, date])
+
+  useEffect(() => {
+    if (!loaded) return
+
+    if (saveTimeout.current) clearTimeout(saveTimeout.current)
+    saveTimeout.current = setTimeout(async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data, error } = await supabase
+        .from('daily_plans')
+        .upsert(
+          {
+            id: planId ?? undefined,
+            user_id: user.id,
+            date,
+            top_three: topThree,
+            blocks,
+            notes,
+          },
+          { onConflict: 'user_id,date' }
+        )
+        .select('id')
+        .single()
+
+      if (!error && data && !planId) setPlanId(data.id)
+    }, 600)
+
+    return () => {
+      if (saveTimeout.current) clearTimeout(saveTimeout.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topThree, blocks, notes, loaded])
 
   return (
     <div className="space-y-7 max-w-5xl">
