@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import DashboardShell from '@/components/DashboardShell'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import {
@@ -31,8 +32,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex">
-      <aside className="w-64 bg-white border-r border-stone-200 flex flex-col fixed h-full">
+    <DashboardShell sidebar={
+      <aside className="w-64 h-full min-h-0 bg-white border-r border-stone-200 flex flex-col">
         <div className="h-20 px-6 flex items-center border-b border-stone-100">
           <Link href="/dashboard" className="block">
             <div className="font-semibold text-xl tracking-tight text-stone-900">
@@ -42,7 +43,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </Link>
         </div>
 
-        <nav className="flex-1 px-3 py-5 space-y-1">
+        <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-5 space-y-1">
           {NAV.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
@@ -91,10 +92,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </div>
       </aside>
-
-      <main className="ml-64 flex-1 p-8 lg:p-10">
-        {children}
-      </main>
-    </div>
+    }>
+      {children}
+    </DashboardShell>
   )
 }
