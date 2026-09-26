@@ -31,6 +31,10 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
+### Ask 168
+
+Set `ANTHROPIC_API_KEY` in the server environment before deploying. `ANTHROPIC_MODEL` is optional. Ask 168 is available to signed-in Pro and Premium accounts. It reads each user's Track items, time categories, and the next seven days of My 168 to answer questions. It does not change any saved data.
+
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
