@@ -12,7 +12,7 @@ export default function DailyPlannerPage() {
   return (
     <div className="space-y-7 max-w-5xl">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">Today</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">Today</p>
         <h1 className="text-3xl font-bold text-stone-900">Plan a day that fits your week</h1>
         <p className="mt-1 text-stone-500">Pick three wins, protect time for them, and leave room for the unexpected.</p>
       </div>
@@ -24,7 +24,7 @@ export default function DailyPlannerPage() {
           <div className="space-y-3">
             {topThree.map((item, index) => (
               <div key={index} className="flex gap-3 rounded-xl bg-white/10 p-3">
-                <span className="font-bold text-indigo-300">0{index + 1}</span>
+                <span className="font-bold text-brand-300">0{index + 1}</span>
                 <input value={item} onChange={e => setTopThree(items => items.map((v, i) => i === index ? e.target.value : v))} placeholder="What matters today?" className="w-full bg-transparent text-sm outline-none placeholder:text-stone-500" />
               </div>
             ))}
@@ -48,7 +48,7 @@ export default function DailyPlannerPage() {
       <section className="rounded-2xl border border-stone-200 bg-white p-6">
         <h2 className="font-semibold text-stone-900">Capture, do not carry</h2>
         <p className="mb-3 text-sm text-stone-500">Park reminders and ideas here instead of holding them in your head.</p>
-        <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Calls, errands, ideas, follow-ups..." className="h-28 w-full resize-none rounded-xl bg-stone-50 p-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500" />
+        <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Calls, errands, ideas, follow-ups..." className="h-28 w-full resize-none rounded-xl bg-stone-50 p-4 text-sm outline-none focus:ring-2 focus:ring-brand-500" />
       </section>
     </div>
   )

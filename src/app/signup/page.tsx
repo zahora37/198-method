@@ -47,8 +47,8 @@ export default function SignupPage() {
     <div className="min-h-screen bg-stone-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
-          <Link href="/" className="font-bold text-2xl text-stone-900">168<span className="text-indigo-500">.</span></Link>
-          <p className="mt-6 text-xs uppercase tracking-[0.18em] text-indigo-600 font-medium">Start with your life</p>
+          <Link href="/" className="font-bold text-2xl text-stone-900">168<span className="text-brand-500">.</span></Link>
+          <p className="mt-6 text-xs uppercase tracking-[0.18em] text-brand-600 font-medium">Start with your life</p>
           <h1 className="mt-2 text-3xl font-semibold text-stone-900">Create your 168</h1>
           <p className="mt-3 text-sm leading-6 text-stone-500 max-w-md mx-auto">Tell us just enough to make 168 useful to you. Your account keeps your information together as you build your week.</p>
         </div>
@@ -56,20 +56,20 @@ export default function SignupPage() {
         <form onSubmit={handleSubmit} className="bg-white border border-stone-200 rounded-2xl p-6 space-y-5">
           <div>
             <label htmlFor="firstName" className="block text-sm font-medium text-stone-700 mb-1.5">What should we call you?</label>
-            <input id="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} required placeholder="First name" className="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+            <input id="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} required placeholder="First name" className="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-brand-300" />
             <p className="text-xs text-stone-400 mt-1.5">We use this to make your 168 feel personal.</p>
           </div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-stone-700 mb-1.5">Email address</label>
-            <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" placeholder="you@example.com" className="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+            <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" placeholder="you@example.com" className="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-brand-300" />
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-stone-700 mb-1.5">Create a password</label>
-            <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" placeholder="At least 6 characters" className="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-indigo-300" />
+            <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" placeholder="At least 6 characters" className="w-full px-4 py-3 rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-brand-300" />
           </div>
           <div>
             <label htmlFor="goal" className="block text-sm font-medium text-stone-700 mb-1.5">What would you most like 168 to help with?</label>
-            <select id="goal" value={goal} onChange={e => setGoal(e.target.value)} required className="w-full px-4 py-3 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300">
+            <select id="goal" value={goal} onChange={e => setGoal(e.target.value)} required className="w-full px-4 py-3 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300">
               <option value="">Choose one</option>
               <option value="time">Understand where my time goes</option>
               <option value="responsibilities">Keep up with responsibilities</option>
@@ -86,7 +86,7 @@ export default function SignupPage() {
         </form>
 
         <Link href="/dashboard" className="block mt-5 text-center text-sm font-medium text-stone-600 hover:text-stone-900">Explore first without signing in</Link>
-        <p className="text-center text-sm text-stone-500 mt-6">Already have an account? <Link href="/login" className="text-indigo-600 hover:underline font-medium">Log in</Link></p>
+        <p className="text-center text-sm text-stone-500 mt-6">Already have an account? <Link href="/login" className="text-brand-600 hover:underline font-medium">Log in</Link></p>
       </div>
     </div>
   )

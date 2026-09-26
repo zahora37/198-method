@@ -20,7 +20,7 @@ export default function WeeklyPlannerPage() {
     <div className="space-y-7 max-w-5xl">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">168 Method</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">168 Method</p>
           <h1 className="text-3xl font-bold text-stone-900">Design your week</h1>
           <p className="text-stone-500 mt-1">Choose what deserves your time before the week chooses for you.</p>
         </div>
@@ -39,7 +39,7 @@ export default function WeeklyPlannerPage() {
               <div key={priority.id} className="flex items-center gap-3 rounded-xl border border-stone-200 p-3">
                 <button
                   onClick={() => setPriorities(items => items.map(p => p.id === priority.id ? { ...p, done: !p.done } : p))}
-                  className={`h-6 w-6 rounded-full border text-xs ${priority.done ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-stone-300'}`}
+                  className={`h-6 w-6 rounded-full border text-xs ${priority.done ? 'border-brand-600 bg-brand-600 text-white' : 'border-stone-300'}`}
                 >
                   {priority.done ? '✓' : index + 1}
                 </button>
@@ -54,14 +54,14 @@ export default function WeeklyPlannerPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-6">
-          <p className="text-sm font-semibold text-indigo-950">Weekly intention</p>
-          <p className="mb-4 text-sm text-indigo-700">What do you want this week to feel focused on?</p>
+        <div className="rounded-2xl border border-brand-100 bg-brand-50 p-6">
+          <p className="text-sm font-semibold text-brand-950">Weekly intention</p>
+          <p className="mb-4 text-sm text-brand-700">What do you want this week to feel focused on?</p>
           <textarea
             value={focus}
             onChange={e => setFocus(e.target.value)}
             placeholder="Example: Finish the important work early and protect family evenings."
-            className="h-36 w-full resize-none rounded-xl border border-indigo-100 bg-white p-4 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-indigo-500"
+            className="h-36 w-full resize-none rounded-xl border border-brand-100 bg-white p-4 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-brand-500"
           />
         </div>
       </section>
@@ -90,7 +90,7 @@ export default function WeeklyPlannerPage() {
       </section>
 
       <div className="rounded-2xl bg-stone-900 p-6 text-white">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-300">Weekly rule</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-300">Weekly rule</p>
         <p className="mt-2 text-xl font-semibold">Do not fill every hour. Protect margin for life.</p>
       </div>
     </div>

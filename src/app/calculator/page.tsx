@@ -76,11 +76,11 @@ export default function CalculatorPage() {
       <nav className="border-b border-stone-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="font-bold text-xl text-stone-900">
-            168<span className="text-indigo-600">.</span>
+            168<span className="text-brand-600">.</span>
           </Link>
           <Link
             href="/signup"
-            className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+            className="text-sm bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors"
           >
             Save results — free
           </Link>
@@ -113,7 +113,7 @@ export default function CalculatorPage() {
 
           <div className="relative h-3 bg-stone-100 rounded-full overflow-hidden">
             <div
-              className={`absolute left-0 top-0 h-full rounded-full transition-all duration-500 ${remaining < 0 ? 'bg-red-500' : 'bg-indigo-500'}`}
+              className={`absolute left-0 top-0 h-full rounded-full transition-all duration-500 ${remaining < 0 ? 'bg-red-500' : 'bg-brand-500'}`}
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -158,7 +158,7 @@ export default function CalculatorPage() {
                       step="0.5"
                       value={cat.hours}
                       onChange={e => updateHours(cat.id, e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                     />
                   </div>
                   <div>
@@ -169,7 +169,7 @@ export default function CalculatorPage() {
                       step="0.5"
                       value={cat.target}
                       onChange={e => updateTarget(cat.id, e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                     />
                   </div>
                 </div>
@@ -193,7 +193,7 @@ export default function CalculatorPage() {
               placeholder="e.g. Exercise, Family, Reading..."
               value={newName}
               onChange={e => setNewName(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
             <div className="grid grid-cols-2 gap-3">
               <input
@@ -203,7 +203,7 @@ export default function CalculatorPage() {
                 placeholder="Actual hrs/week"
                 value={newHours}
                 onChange={e => setNewHours(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
               <input
                 type="number"
@@ -212,13 +212,13 @@ export default function CalculatorPage() {
                 placeholder="Target hrs/week"
                 value={newTarget}
                 onChange={e => setNewTarget(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 text-sm border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
             <button
               onClick={addCategory}
               disabled={!newName.trim() || !newHours}
-              className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add category
@@ -227,14 +227,14 @@ export default function CalculatorPage() {
         </div>
 
         {/* Save prompt */}
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 flex items-center justify-between gap-4">
+        <div className="bg-brand-50 border border-brand-100 rounded-2xl p-6 flex items-center justify-between gap-4">
           <div>
-            <p className="font-semibold text-indigo-900">Want to save this?</p>
-            <p className="text-sm text-indigo-600 mt-0.5">Create a free account to save your categories and unlock the full planner.</p>
+            <p className="font-semibold text-brand-900">Want to save this?</p>
+            <p className="text-sm text-brand-600 mt-0.5">Create a free account to save your categories and unlock the full planner.</p>
           </div>
           <Link
             href="/signup"
-            className="flex-shrink-0 flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors"
+            className="flex-shrink-0 flex items-center gap-1.5 bg-brand-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-brand-700 transition-colors"
           >
             Sign up free
             <ArrowRight className="w-3.5 h-3.5" />

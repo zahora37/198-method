@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ThemeSwitcher from '@/components/ThemeSwitcher'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import {
@@ -36,7 +37,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="h-20 px-6 flex items-center border-b border-stone-100">
           <Link href="/dashboard" className="block">
             <div className="font-semibold text-xl tracking-tight text-stone-900">
-              168<span className="text-indigo-600">.</span>
+              168<span className="text-brand-600">.</span>
             </div>
             <div className="text-[11px] uppercase tracking-[0.18em] text-stone-400 mt-0.5">Method</div>
           </Link>
@@ -56,6 +57,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </nav>
 
         <div className="p-4 border-t border-stone-100 space-y-3">
+          <div className="px-3"><ThemeSwitcher /></div>
           <Link
             href="/dashboard/settings"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors"
@@ -85,7 +87,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <div className="space-y-2">
                 <p className="text-xs font-medium text-stone-700">Guest preview</p>
                 <p className="text-[11px] leading-5 text-stone-400">Explore 168 without an account. Sign in later when you want your information saved.</p>
-                <Link href="/login" className="inline-block text-xs font-medium text-indigo-600 hover:text-indigo-700">Sign in to save</Link>
+                <Link href="/login" className="inline-block text-xs font-medium text-brand-600 hover:text-brand-700">Sign in to save</Link>
               </div>
             )}
           </div>
