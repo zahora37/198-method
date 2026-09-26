@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { getStripe, PLANS } from '@/lib/stripe/client'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -25,6 +26,10 @@ export async function GET(request: NextRequest) {
     .single()
 
   const stripe = getStripe()
+  const price = await stripe.prices.retrieve(PLANS[plan].priceId)
+  if (price.unit_amount !== PLANS[plan].price * 100 || price.currency !== 'usd' || price.recurring?.interval !== 'month' || !price.active) {
+    return NextResponse.json({ error: 'This subscription price is not configured for the selected plan.' }, { status: 503 })
+  }
   let customerId = profile?.stripe_customer_id
 
   if (!customerId) {
@@ -33,7 +38,8 @@ export async function GET(request: NextRequest) {
       metadata: { supabase_user_id: user.id },
     })
     customerId = customer.id
-    await supabase
+    const admin = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+    await admin
       .from('profiles')
       .update({ stripe_customer_id: customerId })
       .eq('id', user.id)

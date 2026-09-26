@@ -29,6 +29,13 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Please send a shorter message.' }, { status: 400 })
   }
 
+  const { data: quotaRows, error: quotaError } = await supabase.rpc('claim_ask_168_question')
+  const quota = Array.isArray(quotaRows) ? quotaRows[0] : null
+  if (quotaError || !quota) return Response.json({ error: 'Ask 168 usage is not set up yet.' }, { status: 503 })
+  if (!quota.allowed) {
+    return Response.json({ error: 'MONTHLY_LIMIT_REACHED', used: quota.used, limit: quota.monthly_limit }, { status: 429 })
+  }
+
   // These queries use the signed-in user's session and the tables' row policies.
   const now = new Date()
   const end = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
@@ -69,5 +76,9 @@ export async function POST(req: Request) {
     },
   })
 
-  return new Response(stream, { headers: { 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-cache, no-transform' } })
+  return new Response(stream, { headers: {
+    'Content-Type': 'text/event-stream; charset=utf-8',
+    'Cache-Control': 'no-cache, no-transform',
+    'X-Ask-168-Remaining': String(Math.max(0, quota.monthly_limit - quota.used)),
+  } })
 }

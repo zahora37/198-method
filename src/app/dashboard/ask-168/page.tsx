@@ -18,6 +18,8 @@ export default function AskPage() {
   const [busy, setBusy] = useState(false)
   const [locked, setLocked] = useState(false)
   const [signInRequired, setSignInRequired] = useState(false)
+  const [remaining, setRemaining] = useState<number | null>(null)
+  const [limitReached, setLimitReached] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -48,10 +50,18 @@ export default function AskPage() {
         setMessages((m) => m.slice(0, -1))
         return
       }
+      if (res.status === 429) {
+        setLimitReached(true)
+        setRemaining(0)
+        setMessages((m) => [...m.slice(0, -1), { role: 'assistant', content: 'You have used your Ask 168 questions for this month. Your allowance resets on the first day of next month.' }])
+        return
+      }
       if (!res.ok || !res.body) {
         const result = await res.json().catch(() => ({}))
         throw new Error(result.error || 'Ask 168 could not answer right now.')
       }
+      const remainingHeader = res.headers.get('X-Ask-168-Remaining')
+      if (remainingHeader !== null) setRemaining(Number(remainingHeader))
 
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
@@ -140,6 +150,7 @@ export default function AskPage() {
         <p className="mt-1 text-stone-500">
           Practical answers about your time, based on the week you have entered so far.
         </p>
+        {remaining !== null && <p className="mt-2 text-xs text-stone-500">{remaining} questions left this month. Resets on the first day of next month (UTC).</p>}
       </div>
 
       <div className="flex-1 space-y-4 mb-6">
@@ -195,11 +206,11 @@ export default function AskPage() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask about your week…"
           className="flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-stone-400"
-          disabled={busy}
+          disabled={busy || limitReached}
         />
         <button
           type="submit"
-          disabled={busy || !input.trim()}
+          disabled={busy || limitReached || !input.trim()}
           aria-label="Send"
           className="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center hover:bg-brand-700 transition-colors disabled:opacity-40"
         >

@@ -18,6 +18,7 @@ export const PLANS = {
       'Goals Tracker',
       'Habit Tracker',
       'Weekly Review',
+      '100 Ask 168 questions per month',
     ],
   },
   premium: {
@@ -29,6 +30,7 @@ export const PLANS = {
       'AI Weekly Planning',
       'AI Goal-Setting Prompts',
       'AI Reflection Prompts',
+      '300 Ask 168 questions per month',
     ],
   },
 } as const
