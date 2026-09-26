@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 export const runtime = 'nodejs'
 
 const ALLOWED_TIERS = ['pro', 'premium']
-const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514'
+const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6'
 type ChatMessage = { role: 'user' | 'assistant'; content: string }
 
 export async function POST(req: Request) {
