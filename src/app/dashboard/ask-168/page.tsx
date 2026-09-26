@@ -128,7 +128,7 @@ export default function AskPage() {
         </div>
         <h1 className="text-2xl font-bold text-stone-900 mb-2">Ask 168 is a Pro feature</h1>
         <p className="text-stone-500 mb-6">
-          Upgrade to ask practical questions about your time, with answers based on your actual week.
+          Pro is $9 per month and includes 100 Ask 168 questions each month. Premium is $19 per month and includes 300.
         </p>
         <Link
           href="/api/stripe/checkout?plan=pro"

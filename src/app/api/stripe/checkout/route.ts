@@ -21,11 +21,14 @@ export async function GET(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('stripe_customer_id')
+    .select('stripe_customer_id, stripe_subscription_id')
     .eq('id', user.id)
     .single()
 
   const stripe = getStripe()
+  if (profile?.stripe_subscription_id) {
+    return NextResponse.redirect(new URL('/dashboard/settings?subscription=active', request.url))
+  }
   const price = await stripe.prices.retrieve(PLANS[plan].priceId)
   if (price.unit_amount !== PLANS[plan].price * 100 || price.currency !== 'usd' || price.recurring?.interval !== 'month' || !price.active) {
     return NextResponse.json({ error: 'This subscription price is not configured for the selected plan.' }, { status: 503 })
