@@ -43,7 +43,7 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <header className="flex items-end justify-between gap-6 border-b border-stone-200 pb-5">
+      <header className="flex flex-col items-start justify-between gap-3 border-b border-stone-200 pb-5 sm:flex-row sm:items-end sm:gap-6">
         <div>
           <p className="text-sm text-stone-500">{today}</p>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-900 mt-1">Dashboard</h1>
@@ -64,7 +64,7 @@ export default function DashboardPage() {
 
         <div className="grid sm:grid-cols-3 border border-stone-200 rounded-lg overflow-hidden">
           {weekSummary.map((item, index) => (
-            <div key={item.label} className={`p-5 ${index > 0 ? 'sm:border-l border-stone-200' : ''}`}>
+            <div key={item.label} className={`p-5 ${index > 0 ? 'border-t sm:border-l sm:border-t-0 border-stone-200' : ''}`}>
               <p className="text-xs uppercase tracking-[0.14em] text-stone-400">{item.label}</p>
               <p className="text-3xl font-semibold text-stone-900 mt-2">{item.value}</p>
               <p className="text-xs text-stone-500 mt-1">hours</p>
