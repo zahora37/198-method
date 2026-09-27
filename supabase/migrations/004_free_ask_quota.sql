@@ -14,7 +14,7 @@ declare
 begin
   if account_id is null then raise exception 'Sign in required'; end if;
   select p.tier into account_tier from public.profiles p where p.id = account_id;
-  cap := case account_tier when 'pro' then 100 when 'premium' then 100 else 10 end;
+  cap := case account_tier when 'pro' then 300 when 'premium' then 300 else 10 end;
   insert into public.ask_168_usage (user_id, month_start, question_count)
   values (account_id, period_start, 1)
   on conflict (user_id, month_start) do update

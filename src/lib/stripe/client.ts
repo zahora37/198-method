@@ -19,7 +19,7 @@ export const PLANS = {
       'Goals Tracker',
       'Habit Tracker',
       'Weekly Review',
-      '100 Ask 168 questions per month',
+      '300 Ask 168 questions per month',
     ],
   },
 } as const
