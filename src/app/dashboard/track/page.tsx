@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { defaultTrackCategories, getCustomTrackCategories } from '@/lib/track-categories'
 
 type Stage = 'Inbox' | 'This Week' | 'In Progress' | 'Done'
 type Priority = 'Normal' | 'Important'
@@ -11,7 +12,6 @@ type TrackRow = { id:string; title:string; category:string|null; due_date:string
 type FormState = { title:string; category:string; due:string; repeat:string; timeNeeded:string; priority:Priority; autoPay:boolean; notes:string }
 type ScheduleForm = { date:string; start:string; minutes:string; type:'Fixed'|'Fluid' }
 
-const categories=['Finance','Subscription','Home','Vehicle','Family','Health','Work','Education','School','Personal','Social','Other']
 const repeats=['Does not repeat','Weekly','Monthly','Every 3 months','Every 6 months','Yearly','Custom']
 const stages:Stage[]=['Inbox','This Week','In Progress','Done']
 const emptyForm:FormState={title:'',category:'Personal',due:'',repeat:'Does not repeat',timeNeeded:'',priority:'Normal',autoPay:false,notes:''}
@@ -36,8 +36,15 @@ export default function TrackPage(){
  const supabase=useMemo(()=>createClient(),[])
  const [items,setItems]=useState<TrackItem[]>([]),[userId,setUserId]=useState<string|null>(null),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[message,setMessage]=useState(''),[formError,setFormError]=useState('')
  const [filter,setFilter]=useState<Filter>('All'),[view,setView]=useState<'List'|'Board'>('List'),[showForm,setShowForm]=useState(false),[draggedId,setDraggedId]=useState<string|null>(null),[editingId,setEditingId]=useState<string|null>(null),[form,setForm]=useState<FormState>(emptyForm)
+ const [categories,setCategories]=useState(defaultTrackCategories)
  const [schedulingId,setSchedulingId]=useState<string|null>(null),[scheduleForm,setScheduleForm]=useState<ScheduleForm>(emptySchedule),[scheduleSaving,setScheduleSaving]=useState(false)
  useEffect(()=>{void loadItems()},[])
+ useEffect(()=>{
+  const sync=()=>setCategories([...defaultTrackCategories,...getCustomTrackCategories()])
+  sync()
+  window.addEventListener('168-categories-change',sync)
+  return ()=>window.removeEventListener('168-categories-change',sync)
+ },[])
 
  async function loadItems(){
   setLoading(true);setMessage('');const{data:authData}=await supabase.auth.getUser();const user=authData.user

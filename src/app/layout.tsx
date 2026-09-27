@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { themes } from '@/lib/appearance'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 // Set the saved color before React paints the page.
-const themeScript = `(function(){try{var valid=['indigo','teal','violet','rose','amber','emerald'];var legacy={Lavender:'violet',Sage:'emerald','Powder Blue':'teal','Soft Rose':'rose',Peach:'amber',Sand:'amber'};var saved=localStorage.getItem('168-theme')||legacy[localStorage.getItem('168-accent-theme')];document.documentElement.setAttribute('data-theme',valid.includes(saved)?saved:'indigo')}catch(e){}})()`
+const themeScript = `(function(){try{var themes=${JSON.stringify(themes)};var saved=localStorage.getItem('168-accent-theme');var theme=themes.find(function(item){return item.name===saved})||themes[0];var root=document.documentElement;root.style.setProperty('--accent',theme.value);root.style.setProperty('--accent-soft',theme.soft);var shades={50:theme.soft,100:'color-mix(in srgb, '+theme.value+' 18%, white)',200:'color-mix(in srgb, '+theme.value+' 30%, white)',300:'color-mix(in srgb, '+theme.value+' 48%, white)',400:'color-mix(in srgb, '+theme.value+' 75%, white)',500:theme.value,600:theme.value,700:'color-mix(in srgb, '+theme.value+' 80%, black)',900:'color-mix(in srgb, '+theme.value+' 50%, black)',950:'color-mix(in srgb, '+theme.value+' 35%, black)'};Object.keys(shades).forEach(function(shade){root.style.setProperty('--brand-'+shade,shades[shade])})}catch(e){}})()`
 
 export default function RootLayout({
   children,
