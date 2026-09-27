@@ -5,7 +5,7 @@ export const runtime = 'nodejs'
 
 const ALLOWED_TIERS = ['free', 'pro', 'premium']
 const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6'
-const ALLOWED_ROUTES = new Set(['/dashboard/track', '/dashboard/my-168', '/dashboard/focus'])
+const ALLOWED_ROUTES = new Set(['/dashboard/track', '/dashboard/my-168', '/dashboard/focus', '/dashboard/focus?find=time'])
 type ChatMessage = { role: 'user' | 'assistant'; content: string }
 type Attachment = { name: string; type: string; data: string }
 type AskResult = {
@@ -14,13 +14,16 @@ type AskResult = {
   scheduleItems?: { title: string; date: string; startTime: string | null; endTime: string | null; category: string; blockType: 'Fixed' | 'Fluid' }[]
 }
 
-function safeResult(raw: string): AskResult {
+function safeResult(raw: string, question: string): AskResult {
   const cleaned = raw.replace(/^```json\s*/i, '').replace(/```$/i, '').trim()
   const parsed = JSON.parse(cleaned) as AskResult
   const reply = typeof parsed.reply === 'string' ? parsed.reply.trim().slice(0, 900) : 'I could not organize that request.'
-  const actions = Array.isArray(parsed.actions)
+  let actions = Array.isArray(parsed.actions)
     ? parsed.actions.filter(action => action && typeof action.label === 'string' && ALLOWED_ROUTES.has(action.href)).slice(0, 2)
     : []
+  if (/find\s+(a\s+)?time|find\s+time|where.*fit/i.test(question) && !actions.some(action => action.href === '/dashboard/focus?find=time')) {
+    actions = [{ label: 'Find a Time', href: '/dashboard/focus?find=time' }, ...actions].slice(0, 2)
+  }
   const scheduleItems = Array.isArray(parsed.scheduleItems)
     ? parsed.scheduleItems.filter(item => item && /^\d{4}-\d{2}-\d{2}$/.test(item.date) && typeof item.title === 'string').slice(0, 60).map(item => ({
       title: item.title.trim().slice(0, 100),
@@ -92,7 +95,7 @@ export async function POST(req: Request) {
       system: `You are Ask 168, a practical planning tool inside the 168 Method app. Sound like a calm human planner, not an AI report. Keep ordinary answers under 90 words. Do not use emojis, generic encouragement, a data-summary section, or more than one short list. Lead with the next decision. Refer to app sections by name: Track stores responsibilities, Focus shows priorities, and My 168 stores calendar blocks. Never claim you changed saved data.
 
 Return only valid JSON with this shape: {"reply":"short answer","actions":[{"label":"Open Track","href":"/dashboard/track"}],"scheduleItems":[]}.
-Only use action hrefs /dashboard/track, /dashboard/focus, or /dashboard/my-168. Use no more than two actions.
+Only use action hrefs /dashboard/track, /dashboard/focus, /dashboard/focus?find=time, or /dashboard/my-168. Use no more than two actions. When the user asks to find time, include {"label":"Find a Time","href":"/dashboard/focus?find=time"}. That link opens Focus and immediately suggests an available time for the highest-priority unscheduled item.
 
 When a school calendar, holiday calendar, or schedule is attached, extract each clearly stated dated event. Put it in scheduleItems as {"title":"...","date":"YYYY-MM-DD","startTime":"HH:MM" or null,"endTime":"HH:MM" or null,"category":"Family" or "Education","blockType":"Fixed"}. Never invent missing dates or times. Tell the user to review missing times before adding. For ordinary questions, scheduleItems must be empty.
 
@@ -101,7 +104,7 @@ Today: ${context.today}. Saved user data: ${JSON.stringify(context).slice(0, 120
     })
     const text = response.content.find(block => block.type === 'text')
     if (!text || text.type !== 'text') throw new Error('No response')
-    return Response.json(safeResult(text.text), { headers: { 'X-Ask-168-Remaining': String(Math.max(0, quota.monthly_limit - quota.used)) } })
+    return Response.json(safeResult(text.text, messages[messages.length - 1].content), { headers: { 'X-Ask-168-Remaining': String(Math.max(0, quota.monthly_limit - quota.used)) } })
   } catch (error) {
     console.error('Ask 168 request failed', error)
     return Response.json({ error: 'Ask 168 could not organize this request. Try again.' }, { status: 502 })
