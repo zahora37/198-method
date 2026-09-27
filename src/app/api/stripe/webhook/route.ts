@@ -1,4 +1,4 @@
-import { getStripe } from '@/lib/stripe/client'
+import { getStripe, PLANS } from '@/lib/stripe/client'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import type Stripe from 'stripe'
@@ -48,6 +48,15 @@ export async function POST(request: NextRequest) {
       .from('profiles')
       .update({ tier: 'free', stripe_subscription_id: null })
       .eq('stripe_subscription_id', subscription.id)
+  }
+
+  if (event.type === 'customer.subscription.updated') {
+    const subscription = event.data.object as Stripe.Subscription
+    const priceId = subscription.items.data[0]?.price.id
+    const tier = subscription.status === 'active' || subscription.status === 'trialing'
+      ? priceId === PLANS.premium.priceId ? 'premium' : priceId === PLANS.pro.priceId ? 'pro' : 'free'
+      : 'free'
+    await supabaseAdmin.from('profiles').update({ tier }).eq('stripe_subscription_id', subscription.id)
   }
 
   return NextResponse.json({ received: true })
