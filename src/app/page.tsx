@@ -6,7 +6,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-stone-50">
       <nav className="border-b border-stone-200 bg-white/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span className="font-bold text-xl tracking-tight text-stone-900">168<span className="text-indigo-500">.</span></span>
+          <span className="font-bold text-xl tracking-tight text-stone-900">168<span className="text-brand-500">.</span></span>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm text-stone-600 hover:text-stone-900">Log in</Link>
             <Link href="/signup" className="text-sm bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800">Create your 168</Link>
@@ -15,8 +15,8 @@ export default function LandingPage() {
       </nav>
 
       <section className="max-w-5xl mx-auto px-6 pt-24 pb-20 text-center">
-        <div className="inline-flex items-center gap-2 bg-violet-50 text-violet-700 text-xs font-medium px-3 py-1.5 rounded-full mb-8"><Clock className="w-3.5 h-3.5" />Free early access</div>
-        <h1 className="text-5xl md:text-6xl font-bold text-stone-900 leading-tight text-balance mb-6">You have 168 hours<br /><span className="text-indigo-500">every week.</span></h1>
+        <div className="inline-flex items-center gap-2 bg-brand-50 text-brand-700 text-xs font-medium px-3 py-1.5 rounded-full mb-8"><Clock className="w-3.5 h-3.5" />Free early access</div>
+        <h1 className="text-5xl md:text-6xl font-bold text-stone-900 leading-tight text-balance mb-6">You have 168 hours<br /><span className="text-brand-500">every week.</span></h1>
         <p className="text-xl text-stone-600 max-w-2xl mx-auto mb-4 text-balance">The goal is not to create more time. It is to understand the time you have and use it with intention.</p>
         <p className="text-base text-stone-500 max-w-2xl mx-auto mb-10 leading-7">168 brings your time, responsibilities, and priorities into one calm system so you can see what is already committed, what needs to be remembered, and what deserves your attention next.</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -49,21 +49,21 @@ export default function LandingPage() {
 
       <section className="max-w-5xl mx-auto px-6 py-24">
         <div className="grid md:grid-cols-[0.8fr_1.2fr] gap-12 items-start">
-          <div><Layers3 className="w-8 h-8 text-indigo-500" /><h2 className="text-3xl font-semibold text-stone-900 mt-5">Built to explain itself.</h2><p className="text-stone-500 mt-4 leading-7">168 guides you as you use it. Each area tells you what belongs there, why it matters, and what happens next without turning the experience into a long tutorial.</p></div>
+          <div><Layers3 className="w-8 h-8 text-brand-500" /><h2 className="text-3xl font-semibold text-stone-900 mt-5">Built to explain itself.</h2><p className="text-stone-500 mt-4 leading-7">168 guides you as you use it. Each area tells you what belongs there, why it matters, and what happens next without turning the experience into a long tutorial.</p></div>
           <div className="space-y-3">
             {[
               ['My 168', 'Add the time that is already committed so you can see what is truly available.'],
               ['Track', 'Add anything you need to remember, especially responsibilities with a due date or repeat schedule.'],
               ['Focus', 'See the few things that need attention based on timing, importance, and your week.'],
               ['Ask 168', 'Ask practical questions about your time and responsibilities once your system has context.'],
-            ].map(([title, copy], index) => <div key={title} className="bg-white border border-stone-200 rounded-xl p-5 flex gap-4"><span className="w-7 h-7 rounded-full bg-violet-50 text-violet-600 flex items-center justify-center text-xs font-semibold shrink-0">{index + 1}</span><div><p className="font-medium text-stone-900">{title}</p><p className="text-sm text-stone-500 mt-1 leading-6">{copy}</p></div></div>)}
+            ].map(([title, copy], index) => <div key={title} className="bg-white border border-stone-200 rounded-xl p-5 flex gap-4"><span className="w-7 h-7 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center text-xs font-semibold shrink-0">{index + 1}</span><div><p className="font-medium text-stone-900">{title}</p><p className="text-sm text-stone-500 mt-1 leading-6">{copy}</p></div></div>)}
           </div>
         </div>
       </section>
 
       <section className="bg-stone-900 text-white"><div className="max-w-5xl mx-auto px-6 py-20 text-center"><h2 className="text-3xl font-semibold">Start with the life you already have.</h2><p className="text-stone-400 max-w-xl mx-auto mt-4 leading-7">Build your 168 around your real commitments, responsibilities, and priorities. You can explore first or create a free account to keep your information.</p><Link href="/signup" className="inline-flex items-center gap-2 bg-white text-stone-900 px-6 py-3 rounded-xl font-medium hover:bg-stone-100 mt-7">Create your 168<ArrowRight className="w-4 h-4" /></Link></div></section>
 
-      <footer className="border-t border-stone-200 bg-white"><div className="max-w-5xl mx-auto px-6 py-8 flex items-center justify-between text-sm text-stone-400"><span className="font-bold text-stone-900">168<span className="text-indigo-500">.</span></span><span>© {new Date().getFullYear()} 168 Method</span></div></footer>
+      <footer className="border-t border-stone-200 bg-white"><div className="max-w-5xl mx-auto px-6 py-8 flex items-center justify-between text-sm text-stone-400"><span className="font-bold text-stone-900">168<span className="text-brand-500">.</span></span><span>© {new Date().getFullYear()} 168 Method</span></div></footer>
     </div>
   )
 }

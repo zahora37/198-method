@@ -16,7 +16,7 @@ export default function ReviewPage() {
   return (
     <div className="space-y-7 max-w-5xl">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">Reset</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">Reset</p>
         <h1 className="text-3xl font-bold text-stone-900">Close the week before starting another</h1>
         <p className="mt-1 text-stone-500">Keep what worked. Adjust what did not. Start the next 168 hours with evidence.</p>
       </div>
@@ -33,7 +33,7 @@ export default function ReviewPage() {
           <section key={title} className="rounded-2xl border border-stone-200 bg-white p-5">
             <h2 className="font-semibold text-stone-900">{title}</h2>
             <p className="mb-3 text-sm text-stone-500">{prompt}</p>
-            <textarea value={answers[title] ?? ''} onChange={e => setAnswers(v => ({ ...v, [title]: e.target.value }))} placeholder="Write a few honest lines..." className="h-28 w-full resize-none rounded-xl bg-stone-50 p-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500" />
+            <textarea value={answers[title] ?? ''} onChange={e => setAnswers(v => ({ ...v, [title]: e.target.value }))} placeholder="Write a few honest lines..." className="h-28 w-full resize-none rounded-xl bg-stone-50 p-3 text-sm outline-none focus:ring-2 focus:ring-brand-500" />
           </section>
         ))}
       </div>

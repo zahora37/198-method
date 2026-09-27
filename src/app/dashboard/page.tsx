@@ -57,7 +57,7 @@ export default function DashboardPage() {
             <h2 className="text-base font-semibold text-stone-900">Your 168</h2>
             <p className="text-sm text-stone-500 mt-1">Your weekly time balance.</p>
           </div>
-          <Link href="/dashboard/my-168" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
+          <Link href="/dashboard/my-168" className="text-sm font-medium text-brand-600 hover:text-brand-700">
             View My 168
           </Link>
         </div>
@@ -74,7 +74,7 @@ export default function DashboardPage() {
 
         <div className="mt-5">
           <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
-            <div className="h-full bg-indigo-500" style={{ width: '78%' }} />
+            <div className="h-full bg-brand-500" style={{ width: '78%' }} />
           </div>
           <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-stone-500 mt-3">
             <span>Sleep 52h</span>
@@ -94,7 +94,7 @@ export default function DashboardPage() {
               <h2 className="text-base font-semibold text-stone-900">Today</h2>
               <p className="text-sm text-stone-500 mt-1">Available today: 4h 30m</p>
             </div>
-            <Link href="/dashboard/my-168" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">Open schedule</Link>
+            <Link href="/dashboard/my-168" className="text-sm font-medium text-brand-600 hover:text-brand-700">Open schedule</Link>
           </div>
           <div className="divide-y divide-stone-100 border-y border-stone-100">
             {todaySchedule.map((entry) => (
@@ -112,7 +112,7 @@ export default function DashboardPage() {
               <h2 className="text-base font-semibold text-stone-900">Focus</h2>
               <p className="text-sm text-stone-500 mt-1">What needs your attention.</p>
             </div>
-            <Link href="/dashboard/focus" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">View Focus</Link>
+            <Link href="/dashboard/focus" className="text-sm font-medium text-brand-600 hover:text-brand-700">View Focus</Link>
           </div>
           <ol className="space-y-4">
             {focusItems.map((item, index) => (
@@ -136,7 +136,7 @@ export default function DashboardPage() {
             <h2 className="text-base font-semibold text-stone-900">Upcoming</h2>
             <p className="text-sm text-stone-500 mt-1">Responsibilities and dates coming next.</p>
           </div>
-          <Link href="/dashboard/track" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">View Track</Link>
+          <Link href="/dashboard/track" className="text-sm font-medium text-brand-600 hover:text-brand-700">View Track</Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
