@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
+import ModeSwitcher from '@/components/ModeSwitcher'
 
 export default function DashboardShell({
   sidebar,
@@ -30,7 +31,7 @@ export default function DashboardShell({
   }, [menuOpen])
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="dashboard-surface min-h-screen bg-stone-50">
       <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-stone-200 bg-white px-4 lg:hidden">
         <button
           type="button"
@@ -45,6 +46,7 @@ export default function DashboardShell({
         <span className="font-semibold text-lg tracking-tight text-stone-900">
           168<span className="text-brand-600">.</span> <span className="text-sm font-normal uppercase tracking-widest text-stone-400">Method</span>
         </span>
+        <div className="ml-auto"><ModeSwitcher compact /></div>
       </header>
 
       {menuOpen && (

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { defaultTrackCategories, getCustomTrackCategories, saveCustomTrackCategories } from '@/lib/track-categories'
 
 import { applyTheme, themes } from '@/lib/appearance'
+import ModeSwitcher from '@/components/ModeSwitcher'
 
 type Section = 'Profile' | 'Notifications' | 'Categories'
 const sections: { title: Section; description: string }[] = [
@@ -65,6 +66,7 @@ export default function SettingsControls() {
     <div className="space-y-6">
       <section className="bg-white border border-stone-200 rounded-2xl p-6">
         <p className="text-xs uppercase tracking-[0.16em] text-stone-400">Appearance</p>
+        <div className="mt-4"><ModeSwitcher /></div>
         <h2 className="text-lg font-semibold text-stone-900 mt-1">Choose your accent color</h2>
         <p className="text-sm text-stone-500 mt-2 leading-6">Your accent appears on links, selected states, progress, and calendar details.</p>
         <div className="grid sm:grid-cols-3 gap-3 mt-5">
@@ -74,6 +76,7 @@ export default function SettingsControls() {
             </button>
           ))}
         </div>
+        <Link href="/dashboard/my-168" className="mt-4 inline-block text-sm font-medium text-brand-700 underline">Set a color for each calendar category in My 168</Link>
       </section>
 
       <section className="bg-white border border-stone-200 rounded-2xl divide-y divide-stone-100">
