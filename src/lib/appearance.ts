@@ -8,6 +8,13 @@ export const themes = [
 ] as const
 
 export type ThemeName = typeof themes[number]['name']
+export type ColorMode = 'light' | 'dark'
+
+export function applyColorMode(mode: ColorMode) {
+  document.documentElement.dataset.appearance = mode
+  try { localStorage.setItem('168-color-mode', mode) } catch { /* Keep the current page choice. */ }
+  window.dispatchEvent(new Event('168-color-mode-change'))
+}
 
 export function applyTheme(name: ThemeName) {
   const theme = themes.find(item => item.name === name)!
