@@ -31,8 +31,8 @@ export default function DashboardShell({
   }, [menuOpen])
 
   return (
-    <div className="dashboard-surface min-h-screen bg-stone-50">
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-stone-200 bg-white px-4 lg:hidden">
+    <div className="dashboard-surface min-h-screen w-full overflow-x-hidden bg-stone-50">
+      <header className="sticky top-0 z-30 flex h-16 min-w-0 items-center gap-2 border-b border-stone-200 bg-white px-3 lg:hidden">
         <button
           type="button"
           onClick={() => setMenuOpen(true)}
@@ -44,7 +44,7 @@ export default function DashboardShell({
           <Menu className="h-6 w-6" aria-hidden="true" />
         </button>
         <span className="font-semibold text-lg tracking-tight text-stone-900">
-          168<span className="text-brand-600">.</span> <span className="text-sm font-normal uppercase tracking-widest text-stone-400">Method</span>
+          168<span className="text-brand-600">.</span> <span className="hidden text-sm font-normal uppercase tracking-widest text-stone-400 min-[390px]:inline">Method</span>
         </span>
         <div className="ml-auto"><ModeSwitcher compact /></div>
       </header>
@@ -76,7 +76,7 @@ export default function DashboardShell({
         </button>
       </div>
 
-      <main className="min-w-0 p-4 sm:p-6 lg:ml-64 lg:p-10">{children}</main>
+      <main className="min-w-0 w-full max-w-full overflow-x-hidden p-4 sm:p-6 lg:ml-64 lg:w-[calc(100%-16rem)] lg:p-10">{children}</main>
     </div>
   )
 }

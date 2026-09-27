@@ -16,7 +16,7 @@ type PositionedBlock = TimeBlock & { top: number; height: number; left: number; 
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const DAY_CHOICES: DayChoice[] = ['All Week', 'Work Days', 'Weekend', 'Every Other Day', 'Custom', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-const HOURS = ['6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM']
+const HOURS = Array.from({length:73},(_,index)=>new Date(2000,0,1,6,index*15).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}).replace(':00',''))
 const CATEGORIES = ['Sleep', 'Work', 'Family', 'Health', 'Home', 'Personal', 'Education', 'Social', 'Other']
 const COLORS = [['Lavender','#ddd6fe'],['Sage','#d1fae5'],['Powder Blue','#dbeafe'],['Soft Rose','#fce7f3'],['Peach','#ffedd5'],['Sand','#f5f0e6'],['Mint','#ccfbf1'],['Butter','#fef3c7'],['Lilac','#f3e8ff']]
 const DEFAULT_COLORS: Palette = { Sleep:'#ddd6fe', Work:'#dbeafe', Family:'#fce7f3', Health:'#d1fae5', Home:'#fef3c7', Personal:'#f3e8ff', Education:'#ccfbf1', Social:'#ffedd5', Other:'#f5f0e6' }
@@ -31,17 +31,17 @@ const guestBlocks: TimeBlock[] = [
   { id:'g3', title:'Family Time', day:'Sun', start:'1 PM', end:'4 PM', category:'Family', type:'Fixed' },
 ]
 
-function hour24(value:string){ const [raw,period]=value.split(' '); let h=Number(raw); if(period==='PM'&&h!==12)h+=12; if(period==='AM'&&h===12)h=0; return h }
-function duration(start:string,end:string){ const s=hour24(start), e=hour24(end); if(e===s)return 0; return e>s?e-s:24-s+e }
+function hour24(value:string){ const match=/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i.exec(value.trim()); if(!match)return NaN; const h=Number(match[1]), m=Number(match[2]||0); if(h<1||h>12||m>59)return NaN; return (h%12+(match[3].toUpperCase()==='PM'?12:0))+m/60 }
+function duration(start:string,end:string){ const s=hour24(start), e=hour24(end); if(!Number.isFinite(s)||!Number.isFinite(e)||e===s)return 0; return e>s?e-s:24-s+e }
 function weekStart(date=new Date()){ const d=new Date(date); const day=d.getDay(); d.setDate(d.getDate()+(day===0?-6:1-day)); d.setHours(0,0,0,0); return d }
 function addDays(date:Date,days:number){ const d=new Date(date); d.setDate(d.getDate()+days); return d }
 function dateForDay(baseWeek:Date,day:string){ return addDays(baseWeek,DAYS.indexOf(day)) }
-function isoRange(baseWeek:Date,day:string,start:string,end:string){ const startDate=dateForDay(baseWeek,day); startDate.setHours(hour24(start),0,0,0); const endDate=new Date(startDate); endDate.setHours(hour24(end),0,0,0); if(hour24(end)<hour24(start))endDate.setDate(endDate.getDate()+1); return {startAt:startDate.toISOString(),endAt:endDate.toISOString()} }
+function isoRange(baseWeek:Date,day:string,start:string,end:string){ const startDate=dateForDay(baseWeek,day); startDate.setMinutes(Math.round(hour24(start)*60)); const endDate=dateForDay(baseWeek,day); endDate.setMinutes(Math.round(hour24(end)*60)); if(hour24(end)<hour24(start))endDate.setDate(endDate.getDate()+1); return {startAt:startDate.toISOString(),endAt:endDate.toISOString()} }
 function displayTime(date:string){ return new Date(date).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}).replace(':00','') }
 function dayName(date:string){ return DAYS[(new Date(date).getDay()+6)%7] }
 function daysForChoice(choice:DayChoice,customDays:string[]=[]){ if(choice==='All Week')return DAYS; if(choice==='Work Days')return DAYS.slice(0,5); if(choice==='Weekend')return DAYS.slice(5); if(choice==='Every Other Day')return ['Mon','Wed','Fri','Sun']; if(choice==='Custom')return DAYS.filter(day=>customDays.includes(day)); return [choice] }
 function uiTypeFromDb(value:string):BlockType{ return value.toLowerCase()==='fixed'?'Fixed':'Fluid' }
-function formatWeekRange(baseWeek:Date){ const end=addDays(baseWeek,6); const sameMonth=baseWeek.getMonth()===end.getMonth(); const startText=baseWeek.toLocaleDateString('en-US',{month:'short',day:'numeric'}); const endText=end.toLocaleDateString('en-US',{month:sameMonth?undefined:'short',day:'numeric',year:'numeric'}); return `${startText} - ${endText}` }
+function formatWeekRange(baseWeek:Date){ const end=addDays(baseWeek,6); const startText=baseWeek.toLocaleDateString('en-US',{month:'short',day:'numeric'}); const endText=end.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); return `${startText} - ${endText}` }
 function minutesFromStart(time:string){ return (hour24(time)-START_HOUR)*60 }
 function visualEndMinutes(block:TimeBlock){ const start=hour24(block.start); const end=hour24(block.end); if(end<=start)return (END_HOUR-START_HOUR)*60; return (end-START_HOUR)*60 }
 function overlaps(a:TimeBlock,b:TimeBlock){ const aStart=minutesFromStart(a.start), aEnd=visualEndMinutes(a); const bStart=minutesFromStart(b.start), bEnd=visualEndMinutes(b); return aStart<bEnd && bStart<aEnd }
@@ -171,9 +171,9 @@ export default function My168Page(){
   function goThisWeek(){ setEditingId(null); setForm(EMPTY_FORM); setShowForm(false); setCurrentWeek(weekStart()) }
   function setColor(category:string,color:string){ const next={...categoryColors,[category]:color}; setCategoryColors(next); localStorage.setItem('168-category-colors',JSON.stringify(next)) }
 
-  const planned=useMemo(()=>blocks.reduce((sum,b)=>sum+duration(b.start,b.end),0),[blocks])
+  const planned=useMemo(()=>Math.round(blocks.reduce((sum,b)=>sum+duration(b.start,b.end),0)*10)/10,[blocks])
   const available=Math.max(168-planned,0)
-  const totals=useMemo(()=>{const t:Record<string,number>={}; blocks.forEach(b=>t[b.category]=(t[b.category]||0)+duration(b.start,b.end)); return Object.entries(t).sort((a,b)=>b[1]-a[1])},[blocks])
+  const totals=useMemo(()=>{const t:Record<string,number>={}; blocks.forEach(b=>t[b.category]=Math.round(((t[b.category]||0)+duration(b.start,b.end))*10)/10); return Object.entries(t).sort((a,b)=>b[1]-a[1])},[blocks])
   const positionedByDay=useMemo(()=>Object.fromEntries(DAYS.map(day=>[day,layoutDayBlocks(blocks.filter(block=>block.day===day))])),[blocks]) as Record<string,PositionedBlock[]>
   const matchingBlocks=useMemo(()=>blocks.filter(block=>`${block.title} ${block.category}`.toLowerCase().includes(scheduleSearch.toLowerCase().trim())),[blocks,scheduleSearch])
   const viewingThisWeek=weekStart().toDateString()===currentWeek.toDateString()
