@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
     const userId = session.metadata?.supabase_user_id
-    const plan = session.metadata?.plan as 'pro' | 'premium'
+    const plan = session.metadata?.plan as 'pro'
 
     if (userId && plan) {
       await supabaseAdmin
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     const subscription = event.data.object as Stripe.Subscription
     const priceId = subscription.items.data[0]?.price.id
     const tier = subscription.status === 'active' || subscription.status === 'trialing'
-      ? priceId === PLANS.premium.priceId ? 'premium' : priceId === PLANS.pro.priceId ? 'pro' : 'free'
+      ? priceId === PLANS.pro.priceId ? 'pro' : 'free'
       : 'free'
     await supabaseAdmin.from('profiles').update({ tier }).eq('stripe_subscription_id', subscription.id)
   }

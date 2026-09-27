@@ -33,11 +33,11 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ### Ask 168
 
-Apply `supabase/migrations/003_ask_168_quota.sql` in the Supabase SQL editor after the earlier migrations. This gives Pro 100 and Premium 300 questions per UTC calendar month. A request counts when Ask 168 begins processing it, including requests that fail after the allowance is claimed.
+Apply `supabase/migrations/003_ask_168_quota.sql`, then `supabase/migrations/004_free_ask_quota.sql`, in the Supabase SQL editor after the earlier migrations. Free accounts receive 10 Ask 168 questions and Pro accounts receive 100 questions per UTC calendar month. A request counts when Ask 168 begins processing it, including requests that fail after the allowance is claimed.
 
-Set `ANTHROPIC_API_KEY` in the server environment before deploying. `ANTHROPIC_MODEL` is optional. Ask 168 is available to signed-in Pro and Premium accounts. It reads each user's Track items, time categories, and the next seven days of My 168 to answer questions. It does not change any saved data.
+Set `ANTHROPIC_API_KEY` in the server environment before deploying. `ANTHROPIC_MODEL` is optional. Ask 168 is available to signed-in Free and Pro accounts. It reads each user's Track items, time categories, and the next seven days of My 168. Reviewed schedule suggestions can be added to My 168 from the Ask screen.
 
-In Stripe, create active monthly USD prices of $9 for Pro and $19 for Premium. Set their Price IDs in `STRIPE_PRO_PRICE_ID` and `STRIPE_PREMIUM_PRICE_ID`. Checkout checks these prices before charging. Add a webhook endpoint at `/api/stripe/webhook` for `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted`. Enable the customer portal for plan changes and cancellation. Set `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY` on the server as shown in `.env.local.example`.
+In Stripe, create an active recurring USD price of $2.50 per week for Pro. Set its Price ID in `STRIPE_PRO_PRICE_ID`. Checkout checks this price before charging. Add a webhook endpoint at `/api/stripe/webhook` for `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted`. Enable the customer portal for plan changes and cancellation. Set `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY` on the server as shown in `.env.local.example`.
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 

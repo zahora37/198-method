@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-  const plan = request.nextUrl.searchParams.get('plan') as 'pro' | 'premium' | null
+  const plan = request.nextUrl.searchParams.get('plan') as 'pro' | null
 
   if (!plan || !PLANS[plan]) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard/settings?subscription=active', request.url))
   }
   const price = await stripe.prices.retrieve(PLANS[plan].priceId)
-  if (price.unit_amount !== PLANS[plan].price * 100 || price.currency !== 'usd' || price.recurring?.interval !== 'month' || !price.active) {
+  if (price.unit_amount !== PLANS[plan].price * 100 || price.currency !== 'usd' || price.recurring?.interval !== PLANS[plan].interval || !price.active) {
     return NextResponse.json({ error: 'This subscription price is not configured for the selected plan.' }, { status: 503 })
   }
   let customerId = profile?.stripe_customer_id
