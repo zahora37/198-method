@@ -26,7 +26,7 @@ export default async function SettingsPage() {
         <div className="bg-white border border-stone-200 rounded-2xl p-6">
           <h2 className="text-lg font-semibold">Pro</h2>
           <p className="mt-2 text-2xl font-semibold">$2.50<span className="text-sm font-normal text-stone-500"> / week</span></p>
-          <p className="mt-2 text-sm text-stone-600">100 Ask 168 questions each month.</p>
+          <p className="mt-2 text-sm text-stone-600">300 Ask 168 questions each month.</p>
           {tier === 'free' ? <Link href="/api/stripe/checkout?plan=pro" className="inline-block mt-5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white">Choose Pro</Link> : tier === 'pro' ? <p className="mt-5 text-sm text-stone-500">Your current plan</p> : null}
         </div>
       </section>

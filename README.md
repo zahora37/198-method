@@ -33,7 +33,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ### Ask 168
 
-Apply `supabase/migrations/003_ask_168_quota.sql`, then `supabase/migrations/004_free_ask_quota.sql`, in the Supabase SQL editor after the earlier migrations. Free accounts receive 10 Ask 168 questions and Pro accounts receive 100 questions per UTC calendar month. A request counts when Ask 168 begins processing it, including requests that fail after the allowance is claimed.
+Apply `supabase/migrations/003_ask_168_quota.sql`, then `supabase/migrations/004_free_ask_quota.sql`, in the Supabase SQL editor after the earlier migrations. Free accounts receive 10 Ask 168 questions and Pro accounts receive 300 questions per UTC calendar month. A request counts when Ask 168 begins processing it, including requests that fail after the allowance is claimed.
 
 Set `ANTHROPIC_API_KEY` in the server environment before deploying. `ANTHROPIC_MODEL` is optional. Ask 168 is available to signed-in Free and Pro accounts. It reads each user's Track items, time categories, and the next seven days of My 168. Reviewed schedule suggestions can be added to My 168 from the Ask screen.
 

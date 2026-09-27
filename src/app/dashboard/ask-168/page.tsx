@@ -83,7 +83,7 @@ export default function AskPage() {
   }
 
   if (signInRequired) return <Gate title="Sign in to use Ask 168" text="Ask 168 reads your saved schedule and responsibilities." href="/login" label="Sign in" />
-  if (locked) return <Gate title="Ask 168 is a Pro feature" text="Pro includes 100 Ask 168 questions each month." href="/api/stripe/checkout?plan=pro" label="Upgrade to Pro" locked />
+  if (locked) return <Gate title="Ask 168 is a Pro feature" text="Pro includes 300 Ask 168 questions each month." href="/api/stripe/checkout?plan=pro" label="Upgrade to Pro" locked />
 
   return <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-3xl flex-col">
     <header className="mb-6">
