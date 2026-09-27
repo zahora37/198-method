@@ -33,9 +33,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ### Ask 168
 
-Apply `supabase/migrations/003_ask_168_quota.sql`, then `supabase/migrations/004_free_ask_quota.sql`, in the Supabase SQL editor after the earlier migrations. Free accounts receive 10 Ask 168 questions and Pro accounts receive 300 questions per UTC calendar month. A request counts when Ask 168 begins processing it, including requests that fail after the allowance is claimed.
+Apply `supabase/migrations/003_ask_168_quota.sql`, then `supabase/migrations/004_free_ask_quota.sql`, in the Supabase SQL editor after the earlier migrations. Free accounts receive 10 Ask 168 questions and Pro accounts receive 300 questions per UTC calendar month. A question counts after Ask 168 returns a valid answer.
 
-Set `ANTHROPIC_API_KEY` in the server environment before deploying. `ANTHROPIC_MODEL` is optional. Ask 168 is available to signed-in Free and Pro accounts. It reads each user's Track items, time categories, and the next seven days of My 168. Reviewed schedule suggestions can be added to My 168 from the Ask screen.
+Set `ANTHROPIC_API_KEY` in the server environment before deploying. `ANTHROPIC_MODEL` is optional. Ask 168 is available to signed-in Free and Pro accounts. It reads each user's Track items and the next seven days of My 168. Reviewed PDF or image schedule suggestions can be added to My 168 from the Ask screen. `.ics` calendar exports are read directly in the browser, without an AI request; repeating events import the first occurrence for review.
 
 In Stripe, create an active recurring USD price of $2.50 per week for Pro. Set its Price ID in `STRIPE_PRO_PRICE_ID`. Checkout checks this price before charging. Add a webhook endpoint at `/api/stripe/webhook` for `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted`. Enable the customer portal for plan changes and cancellation. Set `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY` on the server as shown in `.env.local.example`.
 

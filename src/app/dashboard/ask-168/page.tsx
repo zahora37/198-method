@@ -3,10 +3,11 @@
 import { ChangeEvent, useRef, useState } from 'react'
 import Link from 'next/link'
 import { CalendarPlus, FileUp, Loader2, Lock, Send, X } from 'lucide-react'
+import { importIcs } from '@/lib/ics-import'
 
 type Action = { label: string; href: string }
 type ScheduleItem = { title: string; date: string; startTime: string; endTime: string; category: string; blockType: 'Fixed' | 'Fluid' }
-type Message = { role: 'user' | 'assistant'; content: string; actions?: Action[]; scheduleItems?: ScheduleItem[]; failed?: boolean }
+type Message = { role: 'user' | 'assistant'; content: string; actions?: Action[]; scheduleItems?: ScheduleItem[]; failed?: boolean; local?: boolean; saved?: boolean }
 type Attachment = { name: string; type: string; data: string }
 
 const SUGGESTIONS = ['What needs my attention today?', 'Find time for an overdue item', 'Help me make this week lighter']
@@ -30,6 +31,17 @@ export default function AskPage() {
     const file = event.target.files?.[0]
     if (!file) return
     setFileError('')
+    if (file.name.toLowerCase().endsWith('.ics')) {
+      if (file.size > 2_500_000) { setFileError('Choose an .ics calendar under 2.5 MB.'); event.target.value = ''; return }
+      try {
+        const { items, warning } = importIcs(await file.text())
+        if (!items.length) { setFileError('No dated events were found in that calendar.'); return }
+        setMessages(current => [...current, { role: 'assistant', local: true, content: `Found ${items.length} event${items.length === 1 ? '' : 's'} in ${file.name}. Review the dates and times before adding.${warning ? ` ${warning}.` : ''}`, scheduleItems: items }])
+        setAttachment(null)
+      } catch { setFileError('This calendar could not be read. Try exporting it again as .ics.') }
+      event.target.value = ''
+      return
+    }
     if (file.size > 2_500_000 || !['application/pdf', 'image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
       setFileError('Choose a PDF, JPG, PNG, or WebP under 2.5 MB. Larger files exceed the upload limit.')
       event.target.value = ''
@@ -50,7 +62,7 @@ export default function AskPage() {
     const trimmed = text.trim()
     if (!trimmed || busy) return
     const userMessage: Message = { role: 'user', content: trimmed }
-    const history = [...messages.filter(message => !message.failed).map(({ role, content }) => ({ role, content })), userMessage]
+    const history = [...messages.filter(message => !message.failed && !message.local).map(({ role, content }) => ({ role, content })), userMessage]
     setMessages(current => [...current, userMessage])
     setInput('')
     setBusy(true)
@@ -89,14 +101,17 @@ export default function AskPage() {
     setSaveMessage('')
   }
 
-  async function addSchedule(items: ScheduleItem[]) {
+  async function addSchedule(messageIndex: number, items: ScheduleItem[]) {
     if (scheduleSaving) return
     setScheduleSaving(true)
     setSaveMessage('Adding to My 168...')
     try {
       const res = await fetch('/api/ask/schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: items.map(item => ({ ...item, startAt: new Date(`${item.date}T${item.startTime}:00`).toISOString(), endAt: new Date(`${item.date}T${item.endTime}:00`).toISOString() })) }) })
       const result = await res.json().catch(() => ({}))
-      setSaveMessage(res.ok ? `Added ${result.added} item${result.added === 1 ? '' : 's'} to My 168.` : result.error || 'The schedule could not be added.')
+      if (res.ok) {
+        setMessages(current => current.map((message, index) => index === messageIndex ? { ...message, saved: true } : message))
+        setSaveMessage(`Added ${result.added} item${result.added === 1 ? '' : 's'} to My 168. Open My 168 to see them on their scheduled weeks.`)
+      } else setSaveMessage(result.error || 'The schedule could not be added.')
     } catch {
       setSaveMessage('The schedule could not be added. Check your connection and try again.')
     } finally { setScheduleSaving(false) }
@@ -116,7 +131,7 @@ export default function AskPage() {
     <div className="mb-6 min-w-0 flex-1 space-y-4">
       {messages.length === 0 && <section className="rounded-2xl border border-stone-200 bg-white p-5">
         <div className="flex flex-wrap gap-2">{SUGGESTIONS.map(suggestion => <button key={suggestion} onClick={() => void send(suggestion)} className="rounded-full border border-stone-200 px-4 py-2 text-sm hover:border-brand-300 hover:bg-brand-50">{suggestion}</button>)}</div>
-        <button onClick={() => fileRef.current?.click()} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-stone-300 px-4 py-4 text-sm font-medium text-stone-600 hover:border-brand-400 hover:bg-brand-50"><FileUp className="h-4 w-4" />Upload a school or holiday calendar</button>
+        <button onClick={() => fileRef.current?.click()} className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-stone-300 px-4 py-4 text-sm font-medium text-stone-600 hover:border-brand-400 hover:bg-brand-50"><FileUp className="h-4 w-4" />Upload a school or holiday calendar (PDF, image, or .ics)</button>
       </section>}
 
       {messages.map((message, messageIndex) => <div key={messageIndex} className={message.role === 'user' ? 'flex justify-end' : ''}>
@@ -132,7 +147,7 @@ export default function AskPage() {
             <input type="time" value={item.startTime} onChange={event => updateSchedule(messageIndex, itemIndex, 'startTime', event.target.value)} aria-label="Start time" className="min-w-0 w-full rounded-lg border border-stone-200 px-2 py-2 text-sm" />
             <input type="time" value={item.endTime} onChange={event => updateSchedule(messageIndex, itemIndex, 'endTime', event.target.value)} aria-label="End time" className="min-w-0 w-full rounded-lg border border-stone-200 px-2 py-2 text-sm" />
           </div>)}</div>
-          <button disabled={scheduleSaving || message.scheduleItems.some(item => !item.startTime || !item.endTime)} onClick={() => void addSchedule(message.scheduleItems || [])} className="mt-4 flex items-center gap-2 rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"><CalendarPlus className="h-4 w-4" />Add all to My 168</button>
+          <button disabled={scheduleSaving || message.saved || message.scheduleItems.some(item => !item.startTime || !item.endTime)} onClick={() => void addSchedule(messageIndex, message.scheduleItems || [])} className="mt-4 flex items-center gap-2 rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"><CalendarPlus className="h-4 w-4" />{message.saved ? 'Added to My 168' : 'Add all to My 168'}</button>
         </section>}
       </div>)}
       {busy && <div className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-500"><Loader2 className="h-4 w-4 animate-spin" />Organizing your next step...</div>}
@@ -142,7 +157,7 @@ export default function AskPage() {
     {attachment && <div className="mb-2 flex items-center justify-between rounded-xl bg-brand-50 px-3 py-2 text-xs text-brand-900"><span className="truncate">{attachment.name}</span><button onClick={() => setAttachment(null)} aria-label="Remove file"><X className="h-4 w-4" /></button></div>}
     {fileError && <p className="mb-2 text-xs text-red-700">{fileError}</p>}
     <form onSubmit={event => { event.preventDefault(); void send(input) }} className="sticky bottom-4 flex w-full min-w-0 gap-2 rounded-2xl border border-stone-200 bg-white p-2 shadow-sm">
-      <input ref={fileRef} type="file" accept="application/pdf,image/jpeg,image/png,image/webp" onChange={chooseFile} className="hidden" />
+      <input ref={fileRef} type="file" accept="application/pdf,image/jpeg,image/png,image/webp,.ics,text/calendar" onChange={chooseFile} className="hidden" />
       <button type="button" onClick={() => fileRef.current?.click()} aria-label="Upload schedule" className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200 text-stone-600"><FileUp className="h-4 w-4" /></button>
       <input value={input} onChange={event => setInput(event.target.value)} placeholder="Ask about your time..." disabled={busy} className="min-w-0 flex-1 bg-transparent px-2 text-sm outline-none" />
       <button type="submit" disabled={busy || !input.trim()} aria-label="Send" className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white disabled:opacity-40"><Send className="h-4 w-4" /></button>

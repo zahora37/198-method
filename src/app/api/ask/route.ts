@@ -102,7 +102,7 @@ export async function POST(req: Request) {
   })
 
   try {
-    const response = await new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }).messages.create({
+    const response = await new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 45_000, maxRetries: 0 }).messages.create({
       model: MODEL,
       max_tokens: attachment ? 8192 : 1600,
       output_config: { format: { type: 'json_schema', schema: RESPONSE_SCHEMA } },
@@ -130,6 +130,8 @@ Today: ${context.today}. Saved user data: ${JSON.stringify(context).slice(0, 120
     if (status === 401) return Response.json({ error: 'The AI connection key is invalid. Update ANTHROPIC_API_KEY in Vercel.' }, { status: 503 })
     if (status === 402 || status === 403) return Response.json({ error: 'The AI provider rejected this account. Check API billing and key access.' }, { status: 503 })
     if (status === 404) return Response.json({ error: 'The configured AI model is unavailable. Check ANTHROPIC_MODEL in Vercel.' }, { status: 503 })
+    if (status === 400) return Response.json({ error: 'The AI provider could not process this request. Try a smaller document, or check the configured AI model.' }, { status: 422 })
+    if (status === 413) return Response.json({ error: 'The AI provider rejected this file because it is too large. Try a smaller PDF or image.' }, { status: 413 })
     if (status === 429) return Response.json({ error: 'The AI provider is busy. Please try again shortly.' }, { status: 503 })
     if (error instanceof Error && error.message === 'INCOMPLETE_AI_RESPONSE') return Response.json({ error: 'This document has too many events for one import. Try a shorter calendar.' }, { status: 422 })
     return Response.json({ error: 'Ask 168 could not reach the AI provider. Please try again.' }, { status: 502 })
