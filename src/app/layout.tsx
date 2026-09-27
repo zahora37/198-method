@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { themes } from '@/lib/appearance'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -6,7 +7,8 @@ export const metadata: Metadata = {
   description: 'See where your 168 hours a week actually go, then plan them intentionally.',
 }
 
-const themeScript = `(function(){try{var themes={Lavender:['#8b7cf6','#f1efff'],Sage:['#7da98c','#edf6ef'],'Powder Blue':['#78a9d1','#edf6fc'],'Soft Rose':['#c98d9d','#fbf0f3'],Peach:['#d69b72','#fcf2ea'],Sand:['#ad9877','#f6f1e9']};var saved=themes[localStorage.getItem('168-accent-theme')];if(saved){document.documentElement.style.setProperty('--accent',saved[0]);document.documentElement.style.setProperty('--accent-soft',saved[1])}}catch(e){}})()`
+// Set the saved color before React paints the page.
+const themeScript = `(function(){try{var themes=${JSON.stringify(themes)};var saved=localStorage.getItem('168-accent-theme');var theme=themes.find(function(item){return item.name===saved})||themes[0];var root=document.documentElement;root.style.setProperty('--accent',theme.value);root.style.setProperty('--accent-soft',theme.soft);var shades={50:theme.soft,100:'color-mix(in srgb, '+theme.value+' 18%, white)',200:'color-mix(in srgb, '+theme.value+' 30%, white)',300:'color-mix(in srgb, '+theme.value+' 48%, white)',400:'color-mix(in srgb, '+theme.value+' 75%, white)',500:theme.value,600:theme.value,700:'color-mix(in srgb, '+theme.value+' 80%, black)',900:'color-mix(in srgb, '+theme.value+' 50%, black)',950:'color-mix(in srgb, '+theme.value+' 35%, black)'};Object.keys(shades).forEach(function(shade){root.style.setProperty('--brand-'+shade,shades[shade])})}catch(e){}})()`
 
 export default function RootLayout({
   children,

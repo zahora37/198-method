@@ -38,12 +38,12 @@ export default function DashboardShell({
           aria-label="Open menu"
           aria-controls="dashboard-sidebar"
           aria-expanded={menuOpen}
-          className="rounded-lg p-2 text-stone-700 hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600"
+          className="rounded-lg p-2 text-stone-700 hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-600"
         >
           <Menu className="h-6 w-6" aria-hidden="true" />
         </button>
         <span className="font-semibold text-lg tracking-tight text-stone-900">
-          168<span className="text-indigo-600">.</span> <span className="text-sm font-normal uppercase tracking-widest text-stone-400">Method</span>
+          168<span className="text-brand-600">.</span> <span className="text-sm font-normal uppercase tracking-widest text-stone-400">Method</span>
         </span>
       </header>
 
@@ -68,7 +68,7 @@ export default function DashboardShell({
           type="button"
           aria-label="Close menu"
           onClick={() => setMenuOpen(false)}
-          className="absolute right-3 top-5 rounded-lg p-2 text-stone-600 hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600 lg:hidden"
+          className="absolute right-3 top-5 rounded-lg p-2 text-stone-600 hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-600 lg:hidden"
         >
           <X className="h-5 w-5" aria-hidden="true" />
         </button>
