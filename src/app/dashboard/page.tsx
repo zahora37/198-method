@@ -1,197 +1,136 @@
+'use client'
+
 import Link from 'next/link'
+import { useEffect, useMemo, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
-const weekSummary = [
-  { label: 'Total', value: '168' },
-  { label: 'Planned', value: '131' },
-  { label: 'Available', value: '37' },
-]
+type TrackRow = { id:string; title:string; due_date:string|null; workflow_status:string|null; status:string|null; completed_at:string|null; last_completed_at:string|null }
+type TimeRow = { title:string; start_at:string; end_at:string }
+type Completion = { track_item_id:string; completed_at:string }
+type DoneItem = { id:string; title:string; date:string }
+const WEEKDAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+const GUEST_ITEMS_KEY='168-method-track-guest-items'
 
-const todaySchedule = [
-  { time: '8:00 AM - 5:00 PM', label: 'Work' },
-  { time: '6:00 PM - 7:00 PM', label: 'Workout' },
-]
+function dateKey(date:Date){return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`}
+function weekStart(date:Date){const start=new Date(date);start.setDate(start.getDate()-(start.getDay()+6)%7);start.setHours(0,0,0,0);return start}
+function isDone(item:TrackRow){return Boolean(item.completed_at)||item.workflow_status==='completed'||(item.status||'').toLowerCase()==='completed'}
+function formatTime(date:string){return new Date(date).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
+function formatHours(hours:number){return Number.isInteger(hours)?String(hours):hours.toFixed(1)}
 
-const focusItems = [
-  { title: 'Submit school form', meta: 'Overdue - 10 min' },
-  { title: 'Vehicle registration', meta: 'Due tomorrow - 20 min' },
-  { title: 'Certification study', meta: 'This week - 1 hr' },
-]
+export default function DashboardPage(){
+  const supabase=useMemo(()=>createClient(),[])
+  const [today]=useState(()=>new Date())
+  const [month,setMonth]=useState(()=>new Date(today.getFullYear(),today.getMonth(),1))
+  const [selected,setSelected]=useState(()=>dateKey(today))
+  const [items,setItems]=useState<TrackRow[]>([])
+  const [blocks,setBlocks]=useState<TimeRow[]>([])
+  const [completed,setCompleted]=useState<DoneItem[]>([])
+  const [loading,setLoading]=useState(true)
+  const [guest,setGuest]=useState(false)
+  const [error,setError]=useState('')
 
-const upcomingItems = [
-  { item: 'Electric bill', category: 'Finance', due: 'Sep 2' },
-  { item: 'School event', category: 'Family', due: 'Sep 4' },
-  { item: 'Subscription renewal', category: 'Subscription', due: 'Sep 7' },
-  { item: 'Vehicle registration', category: 'Vehicle', due: 'Sep 10' },
-]
+  useEffect(()=>{
+    let active=true
+    async function load(){
+      setLoading(true);setError('')
+      const {data:{user}}=await supabase.auth.getUser()
+      if(!active)return
+      if(!user){
+        setGuest(true);setBlocks([])
+        try{
+          const saved=JSON.parse(localStorage.getItem(GUEST_ITEMS_KEY)||'[]') as Array<{id:string;title:string;due:string;stage:string;lastCompletedAt:string|null}>
+          const guestRows=saved.map(item=>({id:item.id,title:item.title,due_date:item.due,workflow_status:item.stage==='Done'?'completed':'inbox',status:null,completed_at:item.stage==='Done'?item.lastCompletedAt:null,last_completed_at:item.lastCompletedAt}))
+          setItems(guestRows)
+          setCompleted(guestRows.filter(row=>row.completed_at).map(row=>({id:row.id,title:row.title,date:dateKey(new Date(row.completed_at as string))})))
+        }catch{setItems([]);setCompleted([])}
+        setLoading(false);return
+      }
+      setGuest(false)
+      const start=new Date(month.getFullYear(),month.getMonth(),1)
+      const end=new Date(month.getFullYear(),month.getMonth()+1,1)
+      const week=weekStart(today)
+      const nextWeek=new Date(week);nextWeek.setDate(week.getDate()+7)
+      const [trackResult,blockResult,historyResult]=await Promise.all([
+        supabase.from('track_items').select('id,title,due_date,workflow_status,status,completed_at,last_completed_at'),
+        supabase.from('time_blocks').select('title,start_at,end_at').gte('start_at',week.toISOString()).lt('start_at',nextWeek.toISOString()).order('start_at'),
+        supabase.from('track_item_completions').select('track_item_id,completed_at').gte('completed_at',start.toISOString()).lt('completed_at',end.toISOString())
+      ])
+      if(!active)return
+      if(trackResult.error||blockResult.error){setError('Your dashboard could not load. Please refresh the page.');setLoading(false);return}
+      const track=(trackResult.data||[]) as TrackRow[]
+      const history=(historyResult.data||[]) as Completion[]
+      const names=new Map(track.map(item=>[item.id,item.title]))
+      const done=history.map(entry=>({id:entry.track_item_id,title:names.get(entry.track_item_id)||'Completed item',date:dateKey(new Date(entry.completed_at))}))
+      for(const item of track){
+        const timestamp=item.completed_at||item.last_completed_at
+        if(timestamp&&new Date(timestamp)>=start&&new Date(timestamp)<end&&!done.some(entry=>entry.id===item.id&&entry.date===dateKey(new Date(timestamp)))){
+          done.push({id:item.id,title:item.title,date:dateKey(new Date(timestamp))})
+        }
+      }
+      setItems(track);setBlocks((blockResult.data||[]) as TimeRow[]);setCompleted(done);setLoading(false)
+    }
+    void load()
+    return()=>{active=false}
+  },[supabase,month,today])
 
-const availability = [
-  ['Mon', '2h'],
-  ['Tue', '1h 30m'],
-  ['Wed', '4h'],
-  ['Thu', '3h'],
-  ['Fri', '5h'],
-  ['Sat', '8h'],
-  ['Sun', '6h'],
-]
+  function changeMonth(offset:number){
+    const next=new Date(month.getFullYear(),month.getMonth()+offset,1)
+    setMonth(next)
+    setSelected(dateKey(next.getFullYear()===today.getFullYear()&&next.getMonth()===today.getMonth()?today:next))
+  }
+  const monthDays=new Date(month.getFullYear(),month.getMonth()+1,0).getDate()
+  const leading=new Date(month.getFullYear(),month.getMonth(),1).getDay()
+  const counts=useMemo(()=>completed.reduce((result,item)=>{result[item.date]=(result[item.date]||0)+1;return result},{} as Record<string,number>),[completed])
+  const selectedDone=completed.filter(item=>item.date===selected)
+  const daysActive=Object.keys(counts).filter(day=>day.startsWith(dateKey(month).slice(0,7))).length
+  const todayKey=dateKey(today)
+  const todayBlocks=blocks.filter(block=>dateKey(new Date(block.start_at))===todayKey)
+  const planned=blocks.reduce((sum,block)=>sum+(new Date(block.end_at).getTime()-new Date(block.start_at).getTime())/3600000,0)
+  const upcoming=items.filter(item=>!isDone(item)&&item.due_date).sort((a,b)=>(a.due_date||'').localeCompare(b.due_date||''))
+  const monthTitle=month.toLocaleDateString('en-US',{month:'long',year:'numeric'})
+  const selectedTitle=new Date(`${selected}T12:00:00`).toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})
 
-export default function DashboardPage() {
-  const today = new Intl.DateTimeFormat('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  }).format(new Date())
-
-  return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      <header className="flex flex-col items-start justify-between gap-3 border-b border-stone-200 pb-5 sm:flex-row sm:items-end sm:gap-6">
-        <div>
-          <p className="text-sm text-stone-500">{today}</p>
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-900 mt-1">Dashboard</h1>
-        </div>
-        <p className="text-sm text-stone-500">Plan your time. Track what is due. Know what to focus on.</p>
-      </header>
-
-      <section className="bg-white border border-stone-200 rounded-xl p-6">
-        <div className="flex items-center justify-between gap-4 mb-5">
-          <div>
-            <h2 className="text-base font-semibold text-stone-900">Your 168</h2>
-            <p className="text-sm text-stone-500 mt-1">Your weekly time balance.</p>
-          </div>
-          <Link href="/dashboard/my-168" className="text-sm font-medium text-brand-600 hover:text-brand-700">
-            View My 168
-          </Link>
-        </div>
-
-        <div className="grid sm:grid-cols-3 border border-stone-200 rounded-lg overflow-hidden">
-          {weekSummary.map((item, index) => (
-            <div key={item.label} className={`p-5 ${index > 0 ? 'border-t sm:border-l sm:border-t-0 border-stone-200' : ''}`}>
-              <p className="text-xs uppercase tracking-[0.14em] text-stone-400">{item.label}</p>
-              <p className="text-3xl font-semibold text-stone-900 mt-2">{item.value}</p>
-              <p className="text-xs text-stone-500 mt-1">hours</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-5">
-          <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
-            <div className="h-full bg-brand-500" style={{ width: '78%' }} />
-          </div>
-          <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-stone-500 mt-3">
-            <span>Sleep 52h</span>
-            <span>Work 40h</span>
-            <span>Family 18h</span>
-            <span>Health 6h</span>
-            <span>Personal 8h</span>
-            <span>Other 7h</span>
-          </div>
-        </div>
-      </section>
-
-      <div className="grid lg:grid-cols-2 gap-6">
-        <section className="bg-white border border-stone-200 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-base font-semibold text-stone-900">Today</h2>
-              <p className="text-sm text-stone-500 mt-1">Available today: 4h 30m</p>
-            </div>
-            <Link href="/dashboard/my-168" className="text-sm font-medium text-brand-600 hover:text-brand-700">Open schedule</Link>
-          </div>
-          <div className="divide-y divide-stone-100 border-y border-stone-100">
-            {todaySchedule.map((entry) => (
-              <div key={`${entry.time}-${entry.label}`} className="grid grid-cols-[150px_1fr] gap-4 py-4 text-sm">
-                <span className="text-stone-500">{entry.time}</span>
-                <span className="font-medium text-stone-900">{entry.label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-white border border-stone-200 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-base font-semibold text-stone-900">Focus</h2>
-              <p className="text-sm text-stone-500 mt-1">What needs your attention.</p>
-            </div>
-            <Link href="/dashboard/focus" className="text-sm font-medium text-brand-600 hover:text-brand-700">View Focus</Link>
-          </div>
-          <ol className="space-y-4">
-            {focusItems.map((item, index) => (
-              <li key={item.title} className="flex gap-4">
-                <span className="w-7 h-7 rounded-full border border-stone-300 flex items-center justify-center text-xs font-semibold text-stone-600 flex-shrink-0">
-                  {index + 1}
-                </span>
-                <div>
-                  <p className="text-sm font-medium text-stone-900">{item.title}</p>
-                  <p className="text-xs text-stone-500 mt-1">{item.meta}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
+  return <div className="mx-auto max-w-7xl space-y-6">
+    <header className="flex flex-wrap items-end justify-between gap-3 border-b border-stone-200 pb-5">
+      <div><p className="text-sm text-stone-500">{today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</p><h1 className="mt-1 text-3xl font-semibold tracking-tight text-stone-900">Dashboard</h1></div>
+      <p className="text-sm text-stone-500">Plan your time. Track what is due. Know what to focus on.</p>
+    </header>
+    {error&&<p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{error}</p>}
+    <section className="overflow-hidden rounded-2xl bg-[#171820] p-5 text-white shadow-sm sm:p-7" aria-label="Daily Progress">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div><p className="text-xs font-semibold uppercase tracking-[0.17em] text-violet-300">Track your days</p><h2 className="mt-2 text-2xl font-semibold">Daily Progress</h2><p className="mt-1 text-sm text-slate-400">Completed responsibilities from Track.</p></div>
+        <Link href="/dashboard/track" className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-violet-200 hover:bg-white/10">Open Track</Link>
       </div>
-
-      <section className="bg-white border border-stone-200 rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between p-6 pb-4">
-          <div>
-            <h2 className="text-base font-semibold text-stone-900">Upcoming</h2>
-            <p className="text-sm text-stone-500 mt-1">Responsibilities and dates coming next.</p>
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(230px,0.6fr)]">
+        <div className="rounded-xl border border-white/5 bg-[#20212b] p-3 sm:p-5">
+          <div className="mb-5 flex items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold sm:text-base">{monthTitle}</h3>
+            <div className="flex items-center gap-1"><button type="button" onClick={()=>changeMonth(-1)} aria-label="Previous month" className="rounded-lg p-2 text-slate-300 hover:bg-white/10"><ChevronLeft size={18}/></button><button type="button" onClick={()=>changeMonth(1)} aria-label="Next month" className="rounded-lg p-2 text-slate-300 hover:bg-white/10"><ChevronRight size={18}/></button></div>
           </div>
-          <Link href="/dashboard/track" className="text-sm font-medium text-brand-600 hover:text-brand-700">View Track</Link>
+          <div className="grid grid-cols-7 gap-1 text-center sm:gap-2">{WEEKDAYS.map(day=><span key={day} className="pb-2 text-[10px] font-medium uppercase text-slate-400 sm:text-xs">{day}</span>)}
+            {Array.from({length:leading},(_,index)=><span key={`empty-${index}`} aria-hidden="true"/>)}
+            {Array.from({length:monthDays},(_,index)=>{
+              const date=dateKey(new Date(month.getFullYear(),month.getMonth(),index+1))
+              const done=counts[date]||0
+              return <button type="button" key={date} onClick={()=>setSelected(date)} aria-label={`${date}, ${done} completed`} aria-pressed={selected===date} className={`flex aspect-square min-h-9 flex-col items-center justify-center rounded-lg text-sm transition-colors sm:min-h-11 ${selected===date?'ring-2 ring-violet-300 ring-offset-2 ring-offset-[#20212b]':''} ${done?'bg-violet-500 text-white hover:bg-violet-400':'bg-white/[0.035] text-slate-300 hover:bg-white/10'} ${date===todayKey&&!done?'border border-violet-400/60':''}`}><span className="font-medium">{index+1}</span>{done>0&&<span className="text-[9px] leading-none text-violet-100">{done} done</span>}</button>
+            })}
+          </div>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-4 text-xs text-slate-400"><span><span className="mr-2 inline-block h-2.5 w-2.5 rounded-full bg-violet-500"/>Day with completed items</span><span>{daysActive} active {daysActive===1?'day':'days'} this month</span></div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-stone-50 border-y border-stone-200 text-left text-xs uppercase tracking-wide text-stone-500">
-              <tr>
-                <th className="px-6 py-3 font-medium">Item</th>
-                <th className="px-6 py-3 font-medium">Category</th>
-                <th className="px-6 py-3 font-medium">Due</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-100">
-              {upcomingItems.map((row) => (
-                <tr key={row.item}>
-                  <td className="px-6 py-4 font-medium text-stone-900">{row.item}</td>
-                  <td className="px-6 py-4 text-stone-500">{row.category}</td>
-                  <td className="px-6 py-4 text-stone-500">{row.due}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex flex-col rounded-xl border border-white/5 bg-[#20212b] p-5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{selectedTitle}</p>
+          <p className="mt-4 text-4xl font-semibold text-violet-300">{loading?'…':selectedDone.length}</p><p className="mt-1 text-sm text-slate-300">{selectedDone.length===1?'item completed':'items completed'}</p>
+          <div className="mt-5 border-t border-white/10 pt-4">{selectedDone.length?<ul className="space-y-3">{selectedDone.map((item,index)=><li key={`${item.id}-${index}`} className="flex items-start gap-3 text-sm"><span className="mt-0.5 text-violet-300">✓</span><span>{item.title}</span></li>)}</ul>:<p className="text-sm leading-6 text-slate-400">No completed items recorded for this day.</p>}</div>
+          <Link href="/dashboard/track" className="mt-auto pt-6 text-sm font-medium text-violet-300 hover:text-violet-200">View responsibilities →</Link>
         </div>
-      </section>
-
-      <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
-        <section className="bg-white border border-stone-200 rounded-xl p-6">
-          <h2 className="text-base font-semibold text-stone-900">This Week</h2>
-          <p className="text-sm text-stone-500 mt-1 mb-5">Available time by day.</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-            {availability.map(([day, time]) => (
-              <div key={day} className="border border-stone-200 rounded-lg px-3 py-4 text-center">
-                <p className="text-xs uppercase tracking-wide text-stone-400">{day}</p>
-                <p className="text-sm font-semibold text-stone-900 mt-2">{time}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-white border border-stone-200 rounded-xl p-6">
-          <h2 className="text-base font-semibold text-stone-900">Ask 168</h2>
-          <p className="text-sm text-stone-500 mt-1">Ask about your schedule, priorities, or available time.</p>
-          <Link
-            href="/dashboard/ask-168"
-            className="mt-5 block w-full border border-stone-300 rounded-lg px-4 py-3 text-sm text-stone-500 hover:border-stone-400 hover:text-stone-700 transition-colors"
-          >
-            Ask about your week...
-          </Link>
-          <div className="flex flex-wrap gap-2 mt-3 text-xs text-stone-500">
-            <span>Plan my week</span>
-            <span className="text-stone-300">|</span>
-            <span>What needs attention?</span>
-            <span className="text-stone-300">|</span>
-            <span>Find time for something</span>
-          </div>
-        </section>
       </div>
-    </div>
-  )
+      {guest&&<p className="mt-4 text-xs text-slate-400">Guest progress stays on this device. Sign in to keep your history.</p>}
+    </section>
+    <section className="rounded-xl border border-stone-200 bg-white p-5 sm:p-6"><div className="mb-5 flex items-center justify-between gap-3"><div><h2 className="font-semibold">Your 168</h2><p className="mt-1 text-sm text-stone-500">Your time balance this week.</p></div><Link href="/dashboard/my-168" className="text-sm font-medium text-violet-700">View My 168</Link></div><div className="grid grid-cols-3 divide-x rounded-lg border border-stone-200">{[['Total','168'],['Planned',formatHours(planned)],['Available',formatHours(Math.max(0,168-planned))]].map(([label,value])=><div key={label} className="min-w-0 p-3 sm:p-5"><p className="text-[10px] uppercase tracking-wider text-stone-500 sm:text-xs">{label}</p><p className="mt-2 text-2xl font-semibold sm:text-3xl">{loading?'…':value}</p><p className="text-xs text-stone-500">hours</p></div>)}</div></section>
+    <div className="grid gap-6 lg:grid-cols-2"><section className="rounded-xl border border-stone-200 bg-white p-5 sm:p-6"><div className="flex items-center justify-between gap-2"><h2 className="font-semibold">Today</h2><Link href="/dashboard/my-168" className="text-sm text-violet-700">Open schedule</Link></div><div className="mt-4 divide-y border-y">{todayBlocks.length?todayBlocks.map((block,index)=><div key={`${block.start_at}-${index}`} className="flex flex-wrap justify-between gap-2 py-3 text-sm"><span className="font-medium">{block.title}</span><span className="text-stone-500">{formatTime(block.start_at)} - {formatTime(block.end_at)}</span></div>):<p className="py-5 text-sm text-stone-500">No time blocks in My 168 today.</p>}</div></section>
+      <section className="rounded-xl border border-stone-200 bg-white p-5 sm:p-6"><div className="flex items-center justify-between gap-2"><h2 className="font-semibold">Focus</h2><Link href="/dashboard/focus" className="text-sm text-violet-700">Find Time</Link></div><div className="mt-4 divide-y border-y">{upcoming.length?upcoming.slice(0,3).map(item=><div key={item.id} className="py-3"><p className="text-sm font-medium">{item.title}</p><p className="mt-1 text-xs text-stone-500">{item.due_date&&item.due_date<todayKey?'Overdue':'Due'} {item.due_date&&new Date(`${item.due_date}T12:00:00`).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</p></div>):<p className="py-5 text-sm text-stone-500">No open responsibilities with due dates.</p>}</div></section></div>
+    <section className="rounded-xl border border-stone-200 bg-white p-5 sm:p-6"><div className="flex items-center justify-between gap-3"><h2 className="font-semibold">Upcoming</h2><Link href="/dashboard/track" className="text-sm text-violet-700">View Track</Link></div><div className="mt-4 divide-y border-y">{upcoming.length?upcoming.slice(0,5).map(item=><div key={item.id} className="flex flex-wrap items-center justify-between gap-1 py-3 text-sm"><span className="font-medium">{item.title}</span><span className="text-stone-500">{item.due_date&&new Date(`${item.due_date}T12:00:00`).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span></div>):<p className="py-5 text-sm text-stone-500">Add a responsibility in Track to see it here.</p>}</div></section>
+    <section className="rounded-xl border border-stone-200 bg-white p-5 sm:p-6"><h2 className="font-semibold">Ask 168</h2><p className="mt-1 text-sm text-stone-500">Get help arranging your schedule and finding time.</p><Link href="/dashboard/ask-168" className="mt-4 inline-block rounded-lg border border-stone-300 px-4 py-2 text-sm hover:bg-stone-50">Ask about your week</Link></section>
+  </div>
 }
