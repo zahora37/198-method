@@ -13,7 +13,7 @@ const RESPONSE_SCHEMA = {
   properties: {
     reply: { type: 'string' },
     actions: { type: 'array', items: { type: 'object', properties: { label: { type: 'string' }, href: { type: 'string' } }, required: ['label', 'href'], additionalProperties: false } },
-    scheduleItems: { type: 'array', items: { type: 'object', properties: { title: { type: 'string' }, date: { type: 'string' }, startTime: { type: ['string', 'null'] }, endTime: { type: ['string', 'null'] }, category: { type: 'string' }, blockType: { type: 'string' } }, required: ['title', 'date', 'startTime', 'endTime', 'category', 'blockType'], additionalProperties: false } },
+    scheduleItems: { type: 'array', items: { type: 'object', properties: { title: { type: 'string' }, date: { type: 'string' }, startTime: { anyOf: [{ type: 'string' }, { type: 'null' }] }, endTime: { anyOf: [{ type: 'string' }, { type: 'null' }] }, category: { type: 'string' }, blockType: { type: 'string' } }, required: ['title', 'date', 'startTime', 'endTime', 'category', 'blockType'], additionalProperties: false } },
   },
   required: ['reply', 'actions', 'scheduleItems'],
   additionalProperties: false,
