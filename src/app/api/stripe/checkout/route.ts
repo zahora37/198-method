@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    return NextResponse.redirect(new URL('/login?next=%2Fapi%2Fstripe%2Fcheckout%3Fplan%3Dpro', request.url))
   }
 
   const { data: profile } = await supabase
