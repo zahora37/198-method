@@ -18,21 +18,21 @@ export default async function SettingsPage() {
 
       <section className="grid sm:grid-cols-2 gap-4">
         <div className="bg-white border border-stone-200 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold">Pro</h2>
-          <p className="mt-2 text-2xl font-semibold">$9<span className="text-sm font-normal text-stone-500"> / month</span></p>
-          <p className="mt-2 text-sm text-stone-600">100 Ask 168 questions each month.</p>
-          {tier === 'free' ? <Link href="/api/stripe/checkout?plan=pro" className="inline-block mt-5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white">Choose Pro</Link> : tier === 'pro' ? <p className="mt-5 text-sm text-stone-500">Your current plan</p> : null}
+          <h2 className="text-lg font-semibold">Free</h2>
+          <p className="mt-2 text-2xl font-semibold">$0</p>
+          <p className="mt-2 text-sm text-stone-600">Core planning tools and 10 Ask 168 questions each month.</p>
+          {tier === 'free' && <p className="mt-5 text-sm text-stone-500">Your current plan</p>}
         </div>
         <div className="bg-white border border-stone-200 rounded-2xl p-6">
-          <h2 className="text-lg font-semibold">Premium</h2>
-          <p className="mt-2 text-2xl font-semibold">$19<span className="text-sm font-normal text-stone-500"> / month</span></p>
-          <p className="mt-2 text-sm text-stone-600">300 Ask 168 questions each month.</p>
-          {tier === 'free' ? <Link href="/api/stripe/checkout?plan=premium" className="inline-block mt-5 rounded-lg border border-stone-300 px-4 py-2 text-sm font-medium">Choose Premium</Link> : tier === 'premium' ? <p className="mt-5 text-sm text-stone-500">Your current plan</p> : null}
+          <h2 className="text-lg font-semibold">Pro</h2>
+          <p className="mt-2 text-2xl font-semibold">$2.50<span className="text-sm font-normal text-stone-500"> / week</span></p>
+          <p className="mt-2 text-sm text-stone-600">100 Ask 168 questions each month.</p>
+          {tier === 'free' ? <Link href="/api/stripe/checkout?plan=pro" className="inline-block mt-5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white">Choose Pro</Link> : tier === 'pro' ? <p className="mt-5 text-sm text-stone-500">Your current plan</p> : null}
         </div>
       </section>
       {tier !== 'free' && <Link href="/api/stripe/portal" className="inline-block text-sm font-medium text-brand-700 underline">Manage or cancel your subscription</Link>}
 
-      <section className="bg-stone-100 rounded-xl p-5"><p className="text-sm font-medium text-stone-900">Free access</p><p className="text-sm text-stone-600 mt-1 leading-6">You can explore 168 without a paid plan. Ask 168 requires Pro or Premium.</p></section>
+      <section className="bg-stone-100 rounded-xl p-5"><p className="text-sm font-medium text-stone-900">Start free</p><p className="text-sm text-stone-600 mt-1 leading-6">Use the planner and try Ask 168 ten times each month. Upgrade only when you need more.</p></section>
     </div>
   )
 }

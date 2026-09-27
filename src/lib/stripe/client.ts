@@ -9,7 +9,8 @@ export function getStripe() {
 export const PLANS = {
   pro: {
     name: 'Pro',
-    price: 9,
+    price: 2.5,
+    interval: 'week',
     priceId: process.env.STRIPE_PRO_PRICE_ID!,
     features: [
       '168-Hour Calculator',
@@ -19,18 +20,6 @@ export const PLANS = {
       'Habit Tracker',
       'Weekly Review',
       '100 Ask 168 questions per month',
-    ],
-  },
-  premium: {
-    name: 'Premium',
-    price: 19,
-    priceId: process.env.STRIPE_PREMIUM_PRICE_ID!,
-    features: [
-      'Everything in Pro',
-      'AI Weekly Planning',
-      'AI Goal-Setting Prompts',
-      'AI Reflection Prompts',
-      '300 Ask 168 questions per month',
     ],
   },
 } as const

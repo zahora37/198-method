@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
 
-const ALLOWED_TIERS = ['pro', 'premium']
+const ALLOWED_TIERS = ['free', 'pro', 'premium']
 const MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6'
 const ALLOWED_ROUTES = new Set(['/dashboard/track', '/dashboard/my-168', '/dashboard/focus'])
 type ChatMessage = { role: 'user' | 'assistant'; content: string }
